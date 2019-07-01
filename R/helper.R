@@ -1,3 +1,27 @@
+utils::globalVariables(c(".", "%>%", "A_BOUNDS", "A_FRAG", "A_FRAG_INTER", "ID_BOUNDS", "ID_FRAG", "Ci", 
+                        "Fi", "Fg", "CiErg", "Fi_CBC1", "Fi_CBC2", "L", "L_trans", "P"))
+# usethis::use_package("data.table")
+
+# set local variables
+# A_BOUNDS = NULL
+# A_FRAG = NULL
+# A_FRAG_INTER = NULL
+# ID_BOUNDS = NULL
+# ID_FRAG = NULL
+# Ci = NULL
+# Fi = NULL
+# Fg = NULL
+# CiErg = NULL
+# Fi_CBC1 = NULL
+# Fi_CBC2 = NULL
+# set local variables
+# L = NULL
+# ID_BOUNDS = NULL
+# P = NULL
+# L = NULL
+# L_trans = NULL
+# ID_BOUNDS = NULL
+
 #' Erase one geometry from another
 #'
 #' This function erases one geometry from another. The projection must be identical.
@@ -6,7 +30,6 @@
 #' @param y object of class \code{sf}
 #' @param precision see \link[sf]{st_set_precision}. Default: \code{0}
 #' @param do.subset Perform \link[sf]{st_intersects} to subset geometry of \code{x}.Default: \code{TRUE}
-#' @importFrom magrittr "%>%"
 #' @return
 #' Geometry of class \code{sfc}
 #'
@@ -56,7 +79,6 @@ st_erase = function(x, y, precision = 0, do.subset = TRUE)
 #' @param env.rsaga SAGA GIS environemnt. Default: \link[RSAGA]{rsaga.env}
 #' @param check.geom If set to  \code{TRUE} then geometry is checked with \link[sf]{st_is_valid}. If there are invalid geometries, geometries are repaired using \link[lwgeom]{st_make_valid}. Default: \code{TRUE}
 #' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
-#' @importFrom magrittr "%>%"
 #' @return
 #' Geometry of class \code{sfc}
 #'
@@ -122,7 +144,6 @@ rsaga_erase = function(x, y, method = "1", split = "0", attributes = "1", env.rs
 #'
 #' @param x object of class \code{sf}
 #' @param extent vector containing numeric values, in the following order: xmin, xmax, ymax, ymin
-#' @importFrom magrittr "%>%"
 #' @return
 #' Geometry of class \code{sfc}
 #'
@@ -159,7 +180,6 @@ st_bbox_geom = function(x, extent = NULL)
 #' @param x object of class \code{sf}
 #' @param by field for dissolving. Default: \code{NULL}
 #' @param ... Optional: field statistcs
-#' @importFrom magrittr "%>%"
 #' @return
 #' dissolved geometry of class \code{sf}
 #'
@@ -178,7 +198,6 @@ st_dissolve = function(x, by = NULL, ...) x %>% dplyr::group_by(.dots = by) %>% 
 #'
 #' @param x object of class \code{sf}
 #' @param ... Optional parameters for function link[sf]{st_cast}
-#' @importFrom magrittr "%>%"
 #' @return
 #' Vector with perimeter values
 #'
@@ -199,7 +218,6 @@ st_perimeter = function(x, ...) suppressWarnings(x %>% sf::st_cast(x = ., to = "
 #'
 #' @param x object of class \code{sf}
 #' @param cellsize cell size of fishnet grid in meter
-#' @importFrom magrittr "%>%"
 #' @return
 #' Geometry of class \code{sfc}
 #'
@@ -228,9 +246,9 @@ st_make_grid_lines = function(x, cellsize)
       index <- ((i-1)*nx+1):(i*nx)
     }
     
-    line <- fishnet[index] %>% st_combine(.) %>%
+    line <- fishnet[index] %>% sf::st_combine(.) %>%
       sf::st_multilinestring(x = ., dim = "XY") %>%
-      st_sfc(.) %>%
+      sf::st_sfc(.) %>%
       sf::st_sf(ID_FNET = paste0("X", i), geometry = .)
     
     return(line)
@@ -245,9 +263,9 @@ st_make_grid_lines = function(x, cellsize)
       index <- seqY+i
     }
     
-    line <- fishnet[index] %>% st_combine(.) %>%
+    line <- fishnet[index] %>% sf::st_combine(.) %>%
       sf::st_multilinestring(x = ., dim = "XY") %>%
-      st_sfc(.) %>%
+      sf::st_sfc(.) %>%
       sf::st_sf(ID_FNET = paste0("Y", i), geometry = .)
     
     return(line)

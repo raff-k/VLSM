@@ -16,7 +16,6 @@
 #' @param use.saga use \code{SAGA GIS} for erase process. Default: \code{FALSE}
 #' @param env.rsaga environment of \code{SAGA GIS}. If \code{st_erase} fails then \code{SAGA GIS erase} is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}
 #' @param quiet If set to \code{FALSE}, actual state is printed to console. Default: \code{TRUE}.
-#' @importFrom magrittr "%>%"
 #' @return
 #'  strong urban sprawl: 40-50%, less urban sprawl: 80-90%
 #'
@@ -93,7 +92,7 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
     geom.urban <- geom.urban %>% sf::st_union(.)
     
     if(!quiet) cat("... split multi-parts to single-parts polygon \n")
-    geom.urban <- geom.urban %>% st_cast(., "POLYGON") %>% sf::st_sf(ID_URBAN = 1:length(.), geometry = .)
+    geom.urban <- geom.urban %>% sf::st_cast(., "POLYGON") %>% sf::st_sf(ID_URBAN = 1:length(.), geometry = .)
   } else {
     geom.urban$ID_URBAN <- 1:nrow(geom.urban) ## add unique IDs
   }

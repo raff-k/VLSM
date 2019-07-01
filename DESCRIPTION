@@ -15,16 +15,16 @@ License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 6.1.1
 Depends: 
+         data.table,
          R (>= 3.3)
 Imports: 
-         data.table,
          dplyr,
-         magrittr,
          lwgeom,
          RSAGA,
          sf,
          tools
 Suggests: 
-         link2GI
+         link2GI,
+         magrittr
 
 

@@ -3,7 +3,6 @@
 #' This function calculates the shape index of a polygon.
 #'
 #' @param x object of class \code{sf} 
-#' @importFrom magrittr "%>%"
 #' @return
 #' \code{List} with shape index and interior edge ratio values
 #'

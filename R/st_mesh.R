@@ -9,7 +9,7 @@
 #' @param do.preProcessing If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts. By this step it is assured, that polygon connected to each other are summarized
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param quiet If set to \code{FALSE} actual state is printed to console. Default: \code{TRUE}.
-#' @importFrom magrittr "%>%"
+#' @import data.table
 #' @return
 #' If \code{return.geom} is \code{TRUE} than \code{list} with result and geometry is returned. Otherwhise result is returned in form of a \code{data.frame}
 #
@@ -44,7 +44,7 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
     geom.frag <- geom.frag %>% sf::st_union(.)
     
     if(!quiet) cat("... split multi-parts to single-parts polygon \n")
-    geom.frag <- geom.frag %>% st_cast(., "POLYGON") %>% sf::st_sf(ID_FRAG = 1:length(.), geometry = .)
+    geom.frag <- geom.frag %>% sf::st_cast(., "POLYGON") %>% sf::st_sf(ID_FRAG = 1:length(.), geometry = .)
   } else {
     geom.frag$ID_FRAG <- 1:nrow(geom.frag) ## add unique IDs
   }
@@ -52,7 +52,7 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
   if(!is.null(geom.boundary)){ geom.boundary$ID_BOUNDS <- 1:nrow(geom.boundary) } # ## add unique IDs
   
   ## add Area in m_sq
-  geom.frag$A_FRAG <- sf::st_area(geom.frag) %>% (function(x, conv = conv) as.numeric(x)/conv) # as.numeric() %>% "/" (conv) # units::drop_units(.)
+  geom.frag$A_FRAG <- sf::st_area(geom.frag) %>% (function(x = ., conv_fac = conv) as.numeric(x)/conv_fac)
   if(!is.null(geom.boundary)){ geom.boundary$A_BOUNDS <- sf::st_area(geom.boundary) %>% (function(x, conv = conv) as.numeric(x)/conv)}
   
   
@@ -68,8 +68,8 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
     ## get intersection
     if(!quiet) cat("... intersection to boundary \n")
     inter <- suppressWarnings(sf::st_intersection(x = geom.boundary, y = geom.frag))
-    inter <- suppressWarnings(inter %>% st_cast(., "MULTIPOLYGON") %>% sf::st_cast(., "POLYGON")) # cast is necessairy to split multi-polygons
-    inter$A_FRAG_INTER <- sf::st_area(inter) %>% (function(x, conv = conv) as.numeric(x)/conv) # overwrite area of fragments, # units::drop_units(.)
+    inter <- suppressWarnings(inter %>% sf::st_cast(., "MULTIPOLYGON") %>% sf::st_cast(., "POLYGON")) # cast is necessairy to split multi-polygons
+    inter$A_FRAG_INTER <- sf::st_area(inter) %>% (function(x, conv = conv) as.numeric(x)/conv) # overwrite area of fragments
     
     ## calculation of mesh indices
     df.inter <- sf::st_set_geometry(x = inter, value = NULL) %>% data.table::as.data.table(.)

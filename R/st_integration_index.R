@@ -12,7 +12,6 @@
 #' @param use.saga use \code{SAGA GIS} for erase process. Default: \code{FALSE}
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param quiet show output on console. Default: \code{FALSE}
-#' @importFrom magrittr "%>%"
 #' @return
 #' Vector with integration index (completly integrated: 2/3 < R < 1; good integrated: 1/3 < R < 2/3; low integrated: 0 < R < 1/3; not integrated: 0)
 #'
@@ -27,7 +26,7 @@ st_integration_index = function(geom.old, geom.new, geom.boundary = NULL, tol = 
   
   # get start time of process
   process.time.start <- proc.time()
-  
+
   ## check input
   if(missing(geom.old) || missing(geom.new)){ stop('Input is missing!')}
   
@@ -117,7 +116,7 @@ st_integration_index = function(geom.old, geom.new, geom.boundary = NULL, tol = 
     if(!quiet) cat('... intersection with boundaries \n')
     unique.border <- suppressWarnings(sf::st_intersection(x = geom.boundary, y = unique.border) %>%
                                         sf::st_collection_extract(x = ., type = c("LINESTRING")) %>%
-                                        st_cast(., "MULTILINESTRING") %>% sf::st_cast(., "LINESTRING")) # cast is necessairy to split multi-object
+                                        sf::st_cast(., "MULTILINESTRING") %>% sf::st_cast(., "LINESTRING")) # cast is necessairy to split multi-object
     
     dt.unique.border <- unique.border %>%
       sf::st_set_geometry(x = ., value = NULL) %>%
@@ -126,7 +125,7 @@ st_integration_index = function(geom.old, geom.new, geom.boundary = NULL, tol = 
     
     erase <- suppressWarnings(sf::st_intersection(x = geom.boundary, y = erase) %>%
                                 sf::st_collection_extract(x = ., type = c("POLYGON")) %>%
-                                st_cast(., "MULTIPOLYGON") %>% sf::st_cast(., "POLYGON"))
+                                sf::st_cast(., "MULTIPOLYGON") %>% sf::st_cast(., "POLYGON"))
     dt.erase  <- erase  %>%
       sf::st_set_geometry(x = ., value = NULL) %>%
       data.table::as.data.table(.)
