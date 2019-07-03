@@ -221,7 +221,7 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
   
   if(return.geom)
   {
-    return(list(FFE = df.result, geom = erase.final))
+    return(list(FFE = df.result, geom = erase.final, fishnet = fishnet))
   } else {
     return(df.result)
   }
