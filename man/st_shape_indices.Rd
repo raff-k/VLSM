@@ -15,6 +15,12 @@ st_shape_indices(x)
 \description{
 This function calculates the shape index of a polygon.
 }
+\note{
+Code is based on the following references:
+\itemize{
+  \item Siedentop, S., Heiland, S., Lehmann, I., & Schauerte-Lüke, N. (2007). Regionale Schlüsselindikatoren nachhaltiger Flächennutzung für die Fortschrittsberichte der Nationalen Nachhaltigkeitsstrategie–Flächenziele (Nachhaltigkeitsbarometer Fläche). Abschlussbericht, BBR-Forschungen, H, 130.
+}
+}
 \keyword{edge}
 \keyword{feature,}
 \keyword{index,}

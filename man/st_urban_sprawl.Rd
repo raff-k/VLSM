@@ -45,6 +45,12 @@ strong urban sprawl: 40-50%, less urban sprawl: 80-90%
 \description{
 This function calculates the urban sprawl of urban area.
 }
+\note{
+Code is based on the following references:
+\itemize{
+  \item Ackermann, W., Schweiger, M., Sukopp, U., Fuchs, D., & Sachteleben, J. (2013). Indikatoren zur biologischen vielfalt: Landschaftszersiedlung (Biodiversity indicators. Development and accounting). Naturschutz und Biologische Vielfalt, 132.
+}
+}
 \keyword{feature,}
 \keyword{simple}
 \keyword{sprawl}
