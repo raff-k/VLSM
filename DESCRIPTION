@@ -25,6 +25,7 @@ Imports:
          tools
 Suggests: 
          link2GI,
-         magrittr
+         magrittr,
+         testthat
 
 

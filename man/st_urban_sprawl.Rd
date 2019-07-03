@@ -27,7 +27,7 @@ st_urban_sprawl(geom.urban, geom.boundary = NULL, dist = c(100, 100),
 
 \item{force.extent}{If \code{TRUE} extent is used instead of \code{geom.boundary} (if both are present). Default: \code{FALSE}}
 
-\item{precision}{precision for process. See \link[sf]{st_set_precision}. Default: \code{0}}
+\item{precision}{precision for process \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}}
 
 \item{do.preProcessing}{If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts. By this step it is assured, that polygon connected to each other are summarized}
 

@@ -4,12 +4,17 @@
 #'
 #' @param geom.frag polygon of class \code{sf} representing the fragmentation geometry
 #' @param geom.boundary polygon of class \code{sf} representing subregions, e.g. administrative boundaries
-#' @param total.area Numeric value representing size for area. Only to use if \code{geom.boundary} is not present. Value must match with the conversion constant \code{c} (default hectare). \code{Default: NULL}
+#' @param total.area Numeric value representing size for area. Only to use if \code{geom.boundary} is not present. Value must match with the conversion constant \code{c} (default hectare). Default: \code{NULL}
 #' @param conv constant to convert original square meter output. Default: \code{10000} to convert to hectare. If set to \code{1}, than meter square is the result.
 #' @param do.preProcessing If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts. By this step it is assured, that polygon connected to each other are summarized
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param quiet If set to \code{FALSE} actual state is printed to console. Default: \code{TRUE}.
 #' @import data.table
+#' @note Code is based on the following references:
+#' \itemize{
+#'   \item Moser, B., Jaeger, J. A., Tappeiner, U., Tasser, E., & Eiselt, B. (2007). Modification of the effective mesh size for measuring landscape fragmentation to solve the boundary problem. Landscape ecology, 22(3), 447-459.
+#'   \item Jaeger, J. A. (2000). Landscape division, splitting index, and effective mesh size: new measures of landscape fragmentation. Landscape ecology, 15(2), 115-130.
+#' }
 #' @return
 #' If \code{return.geom} is \code{TRUE} than \code{list} with result and geometry is returned. Otherwhise result is returned in form of a \code{data.frame}
 #
@@ -51,12 +56,12 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
   
   if(!is.null(geom.boundary)){ geom.boundary$ID_BOUNDS <- 1:nrow(geom.boundary) } # ## add unique IDs
   
-  ## add Area in m_sq
+  ## add Area in m_msq / conversion factor
   geom.frag$A_FRAG <- sf::st_area(geom.frag) %>% (function(x = ., conv_fac = conv) as.numeric(x)/conv_fac)
   if(!is.null(geom.boundary)){ geom.boundary$A_BOUNDS <- sf::st_area(geom.boundary) %>% (function(x, conv = conv) as.numeric(x)/conv)}
   
   
-  ## subset data
+  ## subset columns of data
   geom.frag <- geom.frag[, c("ID_FRAG", "A_FRAG", "geometry")]
   if(!is.null(geom.boundary)){geom.boundary <- geom.boundary[, c("ID_BOUNDS", "A_BOUNDS", "geometry")]}
   
@@ -92,8 +97,7 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
       dplyr::mutate(., Si = 1/Ci)  %>%
       dplyr::mutate(., mEff_CUT = Fi/Fg)
     
-    # View(mesh.CUT)
-    
+ 
     ## cross-boundary connections (CBC) procedure
     mesh.CBC <- df.inter.multi[, list(Fg = unique(A_BOUNDS),
                                       FiErg_count = length(!is.na(A_FRAG)),
@@ -109,13 +113,12 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
       dplyr::mutate(., mEff_CBC1 = Fi_CBC1/Fg) %>%
       dplyr::mutate(., mEff_CBC2 = Fi_CBC2/Fg)
     
-    # View(mesh.CBC)
-    
+   
     df.result <- merge(x = mesh.CUT, y = mesh.CBC[, -2], by = "ID_BOUNDS")
     
   } else {
     
-    if(!quiet) cat("... get statistics \n")
+    if(!quiet) cat("... get statistics \n") # ... based on total area
     df.result <- sf::st_set_geometry(x = geom.frag, value = NULL) %>% data.table::as.data.table(.)
     df.result <- df.result[, list(Fg = total.area,
                                   Fi = sum(A_FRAG^2, na.rm = TRUE),

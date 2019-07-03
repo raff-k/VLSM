@@ -20,7 +20,7 @@ rsaga_erase(x, y, method = "1", split = "0", attributes = "1",
 
 \item{env.rsaga}{SAGA GIS environemnt. Default: \link[RSAGA]{rsaga.env}}
 
-\item{check.geom}{If set to  \code{TRUE} then geometry is checked with \link[sf]{st_is_valid}. If there are invalid geometries, geometries are repaired using \link[lwgeom]{st_make_valid}. Default: \code{TRUE}}
+\item{check.geom}{If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}}
 
 \item{quiet}{If \code{FALSE} then comments are printed. Default: \code{TRUE}}
 }

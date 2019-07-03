@@ -11,9 +11,9 @@ st_erase(x, y, precision = 0, do.subset = TRUE)
 
 \item{y}{object of class \code{sf}}
 
-\item{precision}{see \link[sf]{st_set_precision}. Default: \code{0}}
+\item{precision}{\code{st_set_precision}, see \link[sf]{st_precision}. Default: \code{0}}
 
-\item{do.subset}{Perform \link[sf]{st_intersects} to subset geometry of \code{x}.Default: \code{TRUE}}
+\item{do.subset}{Perform \code{st_intersects} (see \link[sf]{geos_binary_pred}) to subset geometry of \code{x}.Default: \code{TRUE}}
 }
 \value{
 Geometry of class \code{sfc}

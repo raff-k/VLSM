@@ -13,7 +13,7 @@ st_mesh(geom.frag, geom.boundary = NULL, total.area = NULL,
 
 \item{geom.boundary}{polygon of class \code{sf} representing subregions, e.g. administrative boundaries}
 
-\item{total.area}{Numeric value representing size for area. Only to use if \code{geom.boundary} is not present. Value must match with the conversion constant \code{c} (default hectare). \code{Default: NULL}}
+\item{total.area}{Numeric value representing size for area. Only to use if \code{geom.boundary} is not present. Value must match with the conversion constant \code{c} (default hectare). Default: \code{NULL}}
 
 \item{conv}{constant to convert original square meter output. Default: \code{10000} to convert to hectare. If set to \code{1}, than meter square is the result.}
 
@@ -28,6 +28,13 @@ If \code{return.geom} is \code{TRUE} than \code{list} with result and geometry i
 }
 \description{
 This function calculates the effective mesh size.
+}
+\note{
+Code is based on the following references:
+\itemize{
+  \item Moser, B., Jaeger, J. A., Tappeiner, U., Tasser, E., & Eiselt, B. (2007). Modification of the effective mesh size for measuring landscape fragmentation to solve the boundary problem. Landscape ecology, 22(3), 447-459.
+  \item Jaeger, J. A. (2000). Landscape division, splitting index, and effective mesh size: new measures of landscape fragmentation. Landscape ecology, 15(2), 115-130.
+}
 }
 \keyword{effective}
 \keyword{feature,}

@@ -8,7 +8,7 @@
 #' @param trans transformation function \code{x-1+1/(x+trans.k)} with \code{x} as free line and \code{trans.k} as constant
 #' @param trans.k constant in [km] for transformation function \code{trans}. Default: \code{1}
 #' @param tol tolerance value for intersection with erased lines. Buffering procedure is used. Default: \code{0.1} [m]
-#' @param precision precision for process. See \link[sf]{st_set_precision}. Default: \code{0}
+#' @param precision precision for process \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}
 #' @param extent Numeric value representing extent for area. Format of vector: \code{c(xmin, xmax, ymax, ymin)}. Default: \code{NULL}
 #' @param force.extent If \code{TRUE} extent is used instead of \code{geom.boundary} (if both are present). Default: \code{FALSE}
 #' @param do.preProcessing If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts. By this step it is assured, that polygon connected to each other are summarized
@@ -66,7 +66,7 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
   if(!is.null(geom.boundary) & !force.extent){bbox.fishnet <- st_bbox_geom(x = geom.boundary)
   } else if(!is.null(geom.boundary) & force.extent){bbox.fishnet <- st_bbox_geom(extent = extent)
   } else if(is.null(geom.boundary) & !is.null(extent)){bbox.fishnet <- st_bbox_geom(extent = extent)
-  } else {bbox.fishnet <- st_bbox_geom(x = geom.urban) }
+  } else { bbox.fishnet <- st_bbox_geom(x = geom.urban) }
   
   
   ## create and subset fish net

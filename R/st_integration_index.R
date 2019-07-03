@@ -7,7 +7,7 @@
 #' @param geom.new object of class \code{sf} representing a land use class of a following time step
 #' @param geom.boundary polygon of class \code{sf} representing subregions, e.g. administrative boundaries
 #' @param tol tolerance value for overlapping area meter square
-#' @param precision precision for process. See \link[sf]{st_set_precision}. Default: \code{0}
+#' @param precision precision for process using \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}
 #' @param env.rsaga environment of \code{SAGA GIS}. If st_erase fails then \code{SAGA GIS} erase is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}
 #' @param use.saga use \code{SAGA GIS} for erase process. Default: \code{FALSE}
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}

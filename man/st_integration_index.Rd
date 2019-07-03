@@ -17,7 +17,7 @@ st_integration_index(geom.old, geom.new, geom.boundary = NULL,
 
 \item{tol}{tolerance value for overlapping area meter square}
 
-\item{precision}{precision for process. See \link[sf]{st_set_precision}. Default: \code{0}}
+\item{precision}{precision for process using \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}}
 
 \item{env.rsaga}{environment of \code{SAGA GIS}. If st_erase fails then \code{SAGA GIS} erase is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}}
 

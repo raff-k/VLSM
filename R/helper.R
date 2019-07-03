@@ -1,26 +1,5 @@
 utils::globalVariables(c(".", "%>%", "A_BOUNDS", "A_FRAG", "A_FRAG_INTER", "ID_BOUNDS", "ID_FRAG", "Ci", 
                         "Fi", "Fg", "CiErg", "Fi_CBC1", "Fi_CBC2", "L", "L_trans", "P"))
-# usethis::use_package("data.table")
-
-# set local variables
-# A_BOUNDS = NULL
-# A_FRAG = NULL
-# A_FRAG_INTER = NULL
-# ID_BOUNDS = NULL
-# ID_FRAG = NULL
-# Ci = NULL
-# Fi = NULL
-# Fg = NULL
-# CiErg = NULL
-# Fi_CBC1 = NULL
-# Fi_CBC2 = NULL
-# set local variables
-# L = NULL
-# ID_BOUNDS = NULL
-# P = NULL
-# L = NULL
-# L_trans = NULL
-# ID_BOUNDS = NULL
 
 #' Erase one geometry from another
 #'
@@ -28,8 +7,8 @@ utils::globalVariables(c(".", "%>%", "A_BOUNDS", "A_FRAG", "A_FRAG_INTER", "ID_B
 #'
 #' @param x object of class \code{sf}
 #' @param y object of class \code{sf}
-#' @param precision see \link[sf]{st_set_precision}. Default: \code{0}
-#' @param do.subset Perform \link[sf]{st_intersects} to subset geometry of \code{x}.Default: \code{TRUE}
+#' @param precision \code{st_set_precision}, see \link[sf]{st_precision}. Default: \code{0}
+#' @param do.subset Perform \code{st_intersects} (see \link[sf]{geos_binary_pred}) to subset geometry of \code{x}.Default: \code{TRUE}
 #' @return
 #' Geometry of class \code{sfc}
 #'
@@ -77,7 +56,7 @@ st_erase = function(x, y, precision = 0, do.subset = TRUE)
 #' @param split Set to \code{"1"}, if multi-part polygons should be splitted to single-part polygons. Default: \code{"0"}
 #' @param attributes attributes inherited to intersection result. \code{0} polygon, \code{1} line, \code{2} line and polygon. Default: \code{"1"}
 #' @param env.rsaga SAGA GIS environemnt. Default: \link[RSAGA]{rsaga.env}
-#' @param check.geom If set to  \code{TRUE} then geometry is checked with \link[sf]{st_is_valid}. If there are invalid geometries, geometries are repaired using \link[lwgeom]{st_make_valid}. Default: \code{TRUE}
+#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}
 #' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
 #' @return
 #' Geometry of class \code{sfc}
