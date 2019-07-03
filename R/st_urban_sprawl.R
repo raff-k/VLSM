@@ -4,10 +4,10 @@
 #'
 #' @param geom.urban polygon of class \code{sf} representing the fragmentation geometry
 #' @param geom.boundary polygon of class \code{sf} representing subregions, e.g. administrative boundaries
-#' @param dist \code{vector} containing distance between lines in \code{x} and \code{y} direction. Default: \code{c(100, 100)} [m]
+#' @param dist \code{vector} containing distance between lines in \code{x} and \code{y} direction. Default: \code{c(100, 100)} \code{m}
 #' @param trans transformation function \code{x-1+1/(x+trans.k)} with \code{x} as free line and \code{trans.k} as constant
-#' @param trans.k constant in [km] for transformation function \code{trans}. Default: \code{1}
-#' @param tol tolerance value for intersection with erased lines. Buffering procedure is used. Default: \code{0.1} [m]
+#' @param trans.k constant in \code{km} for transformation function \code{trans}. Default: \code{1}
+#' @param tol tolerance value for intersection with erased lines. Buffering procedure is used. Default: \code{0.1} \code{m}
 #' @param precision precision for process \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}
 #' @param extent Numeric value representing extent for area. Format of vector: \code{c(xmin, xmax, ymax, ymin)}. Default: \code{NULL}
 #' @param force.extent If \code{TRUE} extent is used instead of \code{geom.boundary} (if both are present). Default: \code{FALSE}

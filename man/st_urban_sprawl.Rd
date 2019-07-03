@@ -15,13 +15,13 @@ st_urban_sprawl(geom.urban, geom.boundary = NULL, dist = c(100, 100),
 
 \item{geom.boundary}{polygon of class \code{sf} representing subregions, e.g. administrative boundaries}
 
-\item{dist}{\code{vector} containing distance between lines in \code{x} and \code{y} direction. Default: \code{c(100, 100)} [m]}
+\item{dist}{\code{vector} containing distance between lines in \code{x} and \code{y} direction. Default: \code{c(100, 100)} \code{m}}
 
 \item{trans}{transformation function \code{x-1+1/(x+trans.k)} with \code{x} as free line and \code{trans.k} as constant}
 
-\item{trans.k}{constant in [km] for transformation function \code{trans}. Default: \code{1}}
+\item{trans.k}{constant in \code{km} for transformation function \code{trans}. Default: \code{1}}
 
-\item{tol}{tolerance value for intersection with erased lines. Buffering procedure is used. Default: \code{0.1} [m]}
+\item{tol}{tolerance value for intersection with erased lines. Buffering procedure is used. Default: \code{0.1} \code{m}}
 
 \item{extent}{Numeric value representing extent for area. Format of vector: \code{c(xmin, xmax, ymax, ymin)}. Default: \code{NULL}}
 
@@ -48,7 +48,7 @@ This function calculates the urban sprawl of urban area.
 \note{
 Code is based on the following references:
 \itemize{
-  \item Ackermann, W., Schweiger, M., Sukopp, U., Fuchs, D., & Sachteleben, J. (2013). Indikatoren zur biologischen vielfalt: Landschaftszersiedlung (Biodiversity indicators. Development and accounting). Naturschutz und Biologische Vielfalt, 132.
+\item Ackermann, W., Schweiger, M., Sukopp, U., Fuchs, D., & Sachteleben, J. (2013). Indikatoren zur biologischen vielfalt: Landschaftszersiedlung (Biodiversity indicators. Development and accounting). Naturschutz und Biologische Vielfalt, 132.
 }
 }
 \keyword{feature,}

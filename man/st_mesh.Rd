@@ -32,8 +32,8 @@ This function calculates the effective mesh size.
 \note{
 Code is based on the following references:
 \itemize{
-  \item Moser, B., Jaeger, J. A., Tappeiner, U., Tasser, E., & Eiselt, B. (2007). Modification of the effective mesh size for measuring landscape fragmentation to solve the boundary problem. Landscape ecology, 22(3), 447-459.
-  \item Jaeger, J. A. (2000). Landscape division, splitting index, and effective mesh size: new measures of landscape fragmentation. Landscape ecology, 15(2), 115-130.
+\item Moser, B., Jaeger, J. A., Tappeiner, U., Tasser, E., & Eiselt, B. (2007). Modification of the effective mesh size for measuring landscape fragmentation to solve the boundary problem. Landscape ecology, 22(3), 447-459.
+\item Jaeger, J. A. (2000). Landscape division, splitting index, and effective mesh size: new measures of landscape fragmentation. Landscape ecology, 15(2), 115-130.
 }
 }
 \keyword{effective}

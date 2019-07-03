@@ -14,6 +14,7 @@ BugReports: https://github.com/raff-k/VLSM/issues
 License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 6.1.1
+Roxygen: list(markdown = TRUE)
 Depends: 
          data.table,
          R (>= 3.3)
@@ -26,6 +27,8 @@ Imports:
 Suggests: 
          link2GI,
          magrittr,
-         testthat
-
+         testthat, 
+         knitr,
+         rmarkdown
+VignetteBuilder: knitr
 
