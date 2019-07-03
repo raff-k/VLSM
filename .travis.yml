@@ -6,4 +6,5 @@ addons:
   apt:
     packages:
         - libgdal-dev
+        - libudunits2-dev
         - saga
