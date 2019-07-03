@@ -16,6 +16,10 @@
 #' @param use.saga use \code{SAGA GIS} for erase process. Default: \code{FALSE}
 #' @param env.rsaga environment of \code{SAGA GIS}. If \code{st_erase} fails then \code{SAGA GIS erase} is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}
 #' @param quiet If set to \code{FALSE}, actual state is printed to console. Default: \code{TRUE}.
+#' @note Code is based on the following references:
+#' \itemize{
+#'   \item Ackermann, W., Schweiger, M., Sukopp, U., Fuchs, D., & Sachteleben, J. (2013). Indikatoren zur biologischen vielfalt: Landschaftszersiedlung (Biodiversity indicators. Development and accounting). Naturschutz und Biologische Vielfalt, 132.
+#' }
 #' @return
 #'  strong urban sprawl: 40-50%, less urban sprawl: 80-90%
 #'
@@ -82,9 +86,7 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
       sf::st_collection_extract(x = ., type = "LINESTRING", warn = FALSE)
   }
   
-  # fishnet <- fishnet[, c("ID", "geometry")]
-  
-  
+
   ## do post-processing of urban geometry
   if(do.preProcessing)
   {
@@ -152,10 +154,6 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
       unlist(.) %>% unique(.)
   }
   
-  
-  # lines.urban  %>% length(.)
-  # lines.boundary %>% length(.)
-  
   check.missing <- setdiff(c(1:nrow(erase.single)),
                            (c(lines.urban, lines.boundary)  %>% unique(.)))
   
@@ -177,11 +175,6 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
   # TYPE 3: Lines between boundary and urban area (green lines)
   type.bound.urb <- intersect(x = lines.urban, y = lines.boundary)
   erase.single$Type[type.bound.urb] <- 3
-  
-  # summary(erase.single$Type)
-  # c(type.bound.urb, type.boundary, type.urban) %>% unique(.) %>% length(.)
-  
-  # browser()
   
   ## group single lines back to multi-lines
   if((!is.null(geom.boundary) & !force.extent))
