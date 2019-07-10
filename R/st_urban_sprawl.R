@@ -2,6 +2,7 @@
 #'
 #' This function calculates the urban sprawl of urban area.
 #'
+#' @param tool tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set.
 #' @param geom.urban polygon of class \code{sf} representing the fragmentation geometry
 #' @param geom.boundary polygon of class \code{sf} representing subregions, e.g. administrative boundaries
 #' @param dist \code{vector} containing distance between lines in \code{x} and \code{y} direction. Default: \code{c(100, 100)} \code{m}
@@ -13,13 +14,13 @@
 #' @param force.extent If \code{TRUE} extent is used instead of \code{geom.boundary} (if both are present). Default: \code{FALSE}
 #' @param do.preProcessing If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts. By this step it is assured, that polygon connected to each other are summarized
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
-#' @param use.saga use \code{SAGA GIS} for erase process. Default: \code{FALSE}
 #' @param env.rsaga environment of \code{SAGA GIS}. If \code{st_erase} fails then \code{SAGA GIS erase} is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}
 #' @param quiet If set to \code{FALSE}, actual state is printed to console. Default: \code{TRUE}.
 #' @note Code is based on the following references:
 #' \itemize{
 #'   \item Ackermann, W., Schweiger, M., Sukopp, U., Fuchs, D., & Sachteleben, J. (2013). Indikatoren zur biologischen vielfalt: Landschaftszersiedlung (Biodiversity indicators. Development and accounting). Naturschutz und Biologische Vielfalt, 132.
 #' }
+#' Depending on the selected \code{tool}, the result of the vector-operation can differ significantly!
 #' @return
 #'  strong urban sprawl: 40-50%, less urban sprawl: 80-90%
 #'
@@ -29,8 +30,8 @@
 #'
 #' @export
 #'
-st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100), trans = function(x, trans.k){x-1+1/(x+trans.k)}, trans.k = 1, tol = 0.1, extent = NULL, force.extent = FALSE,
-                           precision = 0, do.preProcessing = TRUE,  return.geom = FALSE, use.saga = FALSE, env.rsaga = NULL, quiet = TRUE)
+st_urban_sprawl = function(tool = "sf", geom.urban, geom.boundary = NULL, dist = c(100, 100), trans = function(x, trans.k){x-1+1/(x+trans.k)}, trans.k = 1, tol = 0.1, extent = NULL, force.extent = FALSE,
+                           precision = 0, do.preProcessing = TRUE,  return.geom = FALSE, env.rsaga = NULL, quiet = TRUE)
 {
   # get start time of process
   process.time.start <- proc.time()
@@ -62,8 +63,8 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
   if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
   
   ## add unique ID and subset data
-  if(!is.null(geom.boundary)){ geom.boundary$ID_BOUNDS <- 1:nrow(geom.boundary) } # ## add unique IDs
-  if(!is.null(geom.boundary)){geom.boundary <- geom.boundary[, c("ID_BOUNDS", "geometry")]}
+  if(!is.null(geom.boundary)){ geom.boundary$ID_BNDS <- 1:nrow(geom.boundary) } # ## add unique IDs
+  if(!is.null(geom.boundary)){geom.boundary <- geom.boundary[, c("ID_BNDS", "geometry")]}
   
   
   ## ... create boundary for fishnet
@@ -115,16 +116,21 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
   ## erase urban area from fishnet using SAGA GIS
   if(!quiet) cat("... erase urban area from fishnet \n")
   
-  if(use.saga)
+  if(tool == "saga")
   {
     if(is.null(env.rsaga))
     {
       env.rsaga <-  RSAGA::rsaga.env()
     }
     erase <-  rsaga_erase(x = fishnet, y = geom.urban, method = "2", env.rsaga = env.rsaga)
-  } else {
+  } else if(tool == "grass"){
+    erase <-  rgrass_overlay(x = fishnet, y = geom.urban, operator = "not") # not: also known as 'difference'
+    erase <- erase %>% dplyr::select(- c("ID_URBAN"))
+  } else if(tool == "sf"){
     erase <- suppressWarnings(st_erase(x = fishnet, y = geom.urban, precision = precision) %>%
                                 sf::st_collection_extract(x = ., type = "LINESTRING"))
+  } else {
+    stop("No valid input tool! \n")
   }
   
   ## split to single part
@@ -180,7 +186,7 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
   if((!is.null(geom.boundary) & !force.extent))
   {
     erase.final <- st_dissolve(x = erase.single[which(erase.single$Type == 2 | erase.single$Type == 3),],
-                               by = list("Type", "ID_FNET", "ID_BOUNDS"))
+                               by = list("Type", "ID_FNET", "ID_BNDS"))
     
     erase.final <- rbind(erase.final, erase.single[which(erase.single$Type == 1),])
     
@@ -205,7 +211,7 @@ st_urban_sprawl = function(geom.urban, geom.boundary = NULL, dist = c(100, 100),
     df.result <- erase.final %>% sf::st_set_geometry(x = ., value = NULL) %>%
       data.table::as.data.table(.) %>%
       .[,list(L = sum(L, na.rm = TRUE),
-              L_trans = sum(L_trans, na.rm = TRUE)), by = ID_BOUNDS] %>%
+              L_trans = sum(L_trans, na.rm = TRUE)), by = ID_BNDS] %>%
       dplyr::mutate(.data = ., FFE = L_trans/L*100)
   } else {
     df.result <- erase.final %>% sf::st_set_geometry(x = ., value = NULL) %>%

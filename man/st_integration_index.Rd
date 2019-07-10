@@ -4,11 +4,13 @@
 \alias{st_integration_index}
 \title{Calculate integration index}
 \usage{
-st_integration_index(geom.old, geom.new, geom.boundary = NULL,
-  tol = 0.1, precision = 0, env.rsaga = NULL, use.saga = FALSE,
-  return.geom = FALSE, quiet = FALSE)
+st_integration_index(tool = "sf", geom.old, geom.new,
+  geom.boundary = NULL, tol = 0.1, precision = 0, env.rsaga = NULL,
+  snap.rgrass = 1e-05, return.geom = FALSE, quiet = FALSE)
 }
 \arguments{
+\item{tool}{tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set}
+
 \item{geom.old}{object of class \code{sf} representing a land use class of a previous time step}
 
 \item{geom.new}{object of class \code{sf} representing a land use class of a following time step}
@@ -21,7 +23,7 @@ st_integration_index(geom.old, geom.new, geom.boundary = NULL,
 
 \item{env.rsaga}{environment of \code{SAGA GIS}. If st_erase fails then \code{SAGA GIS} erase is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}}
 
-\item{use.saga}{use \code{SAGA GIS} for erase process. Default: \code{FALSE}}
+\item{snap.rgrass}{similar to \code{sf::st_set_precision}. Snapping threshold for boundaries. Default: \code{1e-04}}
 
 \item{return.geom}{If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}}
 
@@ -40,6 +42,7 @@ Code is based on the following references:
 \item Meinel, G., & Winkler, M. (2002). Spatial analysis of settlement and open land trends in urban areas on basis of RS data œ studies of five European cities over a 50-year period.
 \item Siedentop, S., Heiland, S., Lehmann, I., & Schauerte-Lüke, N. (2007). Regionale Schlüsselindikatoren nachhaltiger Flächennutzung für die Fortschrittsberichte der Nationalen Nachhaltigkeitsstrategie–Flächenziele (Nachhaltigkeitsbarometer Fläche). Abschlussbericht, BBR-Forschungen, H, 130.
 }
+Depending on the selected \code{tool}, the result of the vector-operation can differ significantly!
 }
 \keyword{edge}
 \keyword{feature,}

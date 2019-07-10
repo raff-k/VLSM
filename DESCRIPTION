@@ -22,6 +22,7 @@ Imports:
          dplyr,
          lwgeom,
          RSAGA,
+         rgrass7,
          sf,
          tools
 Suggests: 

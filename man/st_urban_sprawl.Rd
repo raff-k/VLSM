@@ -4,13 +4,15 @@
 \alias{st_urban_sprawl}
 \title{Calculate urban sprawl}
 \usage{
-st_urban_sprawl(geom.urban, geom.boundary = NULL, dist = c(100, 100),
-  trans = function(x, trans.k) {     x - 1 + 1/(x + trans.k) },
-  trans.k = 1, tol = 0.1, extent = NULL, force.extent = FALSE,
-  precision = 0, do.preProcessing = TRUE, return.geom = FALSE,
-  use.saga = FALSE, env.rsaga = NULL, quiet = TRUE)
+st_urban_sprawl(tool = "sf", geom.urban, geom.boundary = NULL,
+  dist = c(100, 100), trans = function(x, trans.k) {     x - 1 + 1/(x +
+  trans.k) }, trans.k = 1, tol = 0.1, extent = NULL,
+  force.extent = FALSE, precision = 0, do.preProcessing = TRUE,
+  return.geom = FALSE, env.rsaga = NULL, quiet = TRUE)
 }
 \arguments{
+\item{tool}{tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set.}
+
 \item{geom.urban}{polygon of class \code{sf} representing the fragmentation geometry}
 
 \item{geom.boundary}{polygon of class \code{sf} representing subregions, e.g. administrative boundaries}
@@ -33,8 +35,6 @@ st_urban_sprawl(geom.urban, geom.boundary = NULL, dist = c(100, 100),
 
 \item{return.geom}{If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}}
 
-\item{use.saga}{use \code{SAGA GIS} for erase process. Default: \code{FALSE}}
-
 \item{env.rsaga}{environment of \code{SAGA GIS}. If \code{st_erase} fails then \code{SAGA GIS erase} is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}}
 
 \item{quiet}{If set to \code{FALSE}, actual state is printed to console. Default: \code{TRUE}.}
@@ -50,6 +50,7 @@ Code is based on the following references:
 \itemize{
 \item Ackermann, W., Schweiger, M., Sukopp, U., Fuchs, D., & Sachteleben, J. (2013). Indikatoren zur biologischen vielfalt: Landschaftszersiedlung (Biodiversity indicators. Development and accounting). Naturschutz und Biologische Vielfalt, 132.
 }
+Depending on the selected \code{tool}, the result of the vector-operation can differ significantly!
 }
 \keyword{feature,}
 \keyword{simple}

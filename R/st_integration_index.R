@@ -3,13 +3,14 @@
 #' This function calculates an index defining the intergration of new land use area into conisting land use area
 #' of the same land use class conisdering two different time steps.
 #'
+#' @param tool tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set
 #' @param geom.old object of class \code{sf} representing a land use class of a previous time step
 #' @param geom.new object of class \code{sf} representing a land use class of a following time step
 #' @param geom.boundary polygon of class \code{sf} representing subregions, e.g. administrative boundaries
 #' @param tol tolerance value for overlapping area meter square
 #' @param precision precision for process using \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}
 #' @param env.rsaga environment of \code{SAGA GIS}. If st_erase fails then \code{SAGA GIS} erase is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}
-#' @param use.saga use \code{SAGA GIS} for erase process. Default: \code{FALSE}
+#' @param snap.rgrass similar to \code{sf::st_set_precision}. Snapping threshold for boundaries. Default: \code{1e-04}
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param quiet show output on console. Default: \code{FALSE}
 #' @note Code is based on the following references:
@@ -17,6 +18,7 @@
 #'   \item Meinel, G., & Winkler, M. (2002). Spatial analysis of settlement and open land trends in urban areas on basis of RS data œ studies of five European cities over a 50-year period.
 #'   \item Siedentop, S., Heiland, S., Lehmann, I., & Schauerte-Lüke, N. (2007). Regionale Schlüsselindikatoren nachhaltiger Flächennutzung für die Fortschrittsberichte der Nationalen Nachhaltigkeitsstrategie–Flächenziele (Nachhaltigkeitsbarometer Fläche). Abschlussbericht, BBR-Forschungen, H, 130.
 #' }
+#' Depending on the selected \code{tool}, the result of the vector-operation can differ significantly!
 #' @return
 #' Vector with integration index (completly integrated: 2/3 < R < 1; good integrated: 1/3 < R < 2/3; low integrated: 0 < R < 1/3; not integrated: 0)
 #'
@@ -26,8 +28,8 @@
 #'
 #' @export
 #'
-st_integration_index = function(geom.old, geom.new, geom.boundary = NULL, tol = 0.1, precision = 0,
-                                env.rsaga = NULL, use.saga = FALSE, return.geom = FALSE, quiet = FALSE){
+st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary = NULL, tol = 0.1, precision = 0,
+                                env.rsaga = NULL, snap.rgrass = 1e-5, return.geom = FALSE, quiet = FALSE){
   
   # get start time of process
   process.time.start <- proc.time()
@@ -56,51 +58,62 @@ st_integration_index = function(geom.old, geom.new, geom.boundary = NULL, tol = 
   if(!all(sf::st_is_valid(geom.new))){ stop('Input of "geom.new" contains not valid geometries. Please try lwgeom::st_make_valid().')}
   if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
   
-  # if(!quiet) cat("... union input geometries \n")
-  # geom.old <- sf::st_union(x = geom.old) %>% sf::st_cast(., "POLYGON") %>% sf::st_set_precision(x = ., precision = precision)
-  # geom.new <- sf::st_union(x = geom.new) %>% sf::st_cast(., "POLYGON") %>% sf::st_set_precision(x = ., precision = precision)
+ 
   
   # # # # START CALCULATION OF INTEGRATION INDEX
   ## check for overlapping polygon
   
-  ## common area
-  if(!quiet) cat("... intersection of input geometries \n")
-  inter <- suppressWarnings(sf::st_intersection(x = geom.old, y = geom.new) %>%
-                              sf::st_collection_extract(x = ., type = c("POLYGON")))#  %>%
-  # sf::st_set_precision(x = ., precision = precision)
-  
-  ## new area
-  if(!quiet) cat('... erase intersection from "geom.new" (this can take a while!) \n')
-  
-  if(use.saga)
+  if(tool == "saga" | tool == "sf")
   {
-    if(is.null(env.rsaga))
+    ## common area
+    if(!quiet) cat("... intersection of input geometries \n")
+    inter <- suppressWarnings(sf::st_intersection(x = geom.old, y = geom.new) %>%
+                                sf::st_collection_extract(x = ., type = c("POLYGON")))#  %>%
+    
+    ## new area
+    if(!quiet) cat('... erase intersection from "geom.new" (this can take a while!) \n')
+    
+    if(tool == "saga")
     {
-      env.rsaga <-  RSAGA::rsaga.env()
-    }
-    
-    erase <- rsaga_erase(x = geom.new, y = inter, method = "1",
-                                 split = "1", env.rsaga = env.rsaga) %>%
-      .[which(x = as.numeric(sf::st_area(.)) >= tol),]
-    
-  } else {
-    erase <- tryCatch({
-      suppressWarnings(st_erase(x = geom.new, y = inter, precision = precision) %>%
-                         sf::st_collection_extract(x = ., type = c("POLYGON")) %>%
-                         sf::st_cast(x = ., to = "POLYGON") %>%
-                         .[which(x = as.numeric(sf::st_area(.)) >= tol),])
-    }, error = function(e){
-      warning(paste('SAGA GIS is used due to error in st_erase():', e))
       if(is.null(env.rsaga))
       {
         env.rsaga <-  RSAGA::rsaga.env()
       }
-      tmp.erase <- rsaga_erase(x = geom.new, y = inter, method = "1",
-                                       split = "1", env.rsaga = env.rsaga) %>%
+      
+      erase <- rsaga_erase(x = geom.new, y = inter, method = "1",
+                           split = "1", env.rsaga = env.rsaga) %>%
         .[which(x = as.numeric(sf::st_area(.)) >= tol),]
-      return(tmp.erase)
-    })
-  } # end of use.saga
+      
+    } else {
+      erase <- tryCatch({
+        suppressWarnings(st_erase(x = geom.new, y = inter, precision = precision) %>%
+                           sf::st_collection_extract(x = ., type = c("POLYGON")) %>%
+                           sf::st_cast(x = ., to = "POLYGON") %>%
+                           .[which(x = as.numeric(sf::st_area(.)) >= tol),])
+      }, error = function(e){
+        warning(paste('SAGA GIS is used due to error in st_erase():', e))
+        if(is.null(env.rsaga))
+        {
+          env.rsaga <-  RSAGA::rsaga.env()
+        }
+        tmp.erase <- rsaga_erase(x = geom.new, y = inter, method = "1",
+                                 split = "1", env.rsaga = env.rsaga) %>%
+          .[which(x = as.numeric(sf::st_area(.)) >= tol),]
+        return(tmp.erase)
+      })
+    } # end of use.saga
+  } else if(tool == "grass"){
+    inter <-  rgrass_overlay(x = geom.old, y = geom.new, operator = "and", snap = snap.rgrass) %>%  # and: also known as 'intersection' in GIS
+                  dplyr::select("geometry") %>%
+                  dplyr::mutate(ID_inter = 1:nrow(.))
+    
+    erase <- rgrass_overlay(x = geom.new, y = inter, operator = "not", snap = snap.rgrass) %>% # not: also known as 'difference' 
+                    .[which(x = as.numeric(sf::st_area(.)) >= tol),]
+  } else {
+    stop("No valid input tool! \n")
+  }
+  
+  
   
   
   if(!quiet) cat('... conversion to lines \n')
@@ -161,7 +174,7 @@ st_integration_index = function(geom.old, geom.new, geom.boundary = NULL, tol = 
   
   if(return.geom)
   {
-    return(list(integration_index = dt.result, unique_border = unique.border, new_area = erase))
+    return(list(integration_index = dt.result, unique_border = unique.border, new_area = erase, inter_area = inter))
   } else {
     return(dt.result)
   }

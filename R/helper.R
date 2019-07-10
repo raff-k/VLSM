@@ -1,4 +1,4 @@
-utils::globalVariables(c(".", "%>%", "A_BOUNDS", "A_FRAG", "A_FRAG_INTER", "ID_BOUNDS", "ID_FRAG", "Ci", 
+utils::globalVariables(c(".", "%>%", "A_BOUNDS", "A_FRAG", "A_FRAG_INTER", "ID_BOUNDS", "ID_BNDS", "ID_FRAG", "Ci", 
                         "Fi", "Fg", "CiErg", "Fi_CBC1", "Fi_CBC2", "L", "L_trans", "P"))
 
 #' Erase one geometry from another
@@ -112,6 +112,90 @@ rsaga_erase = function(x, y, method = "1", split = "0", attributes = "1", env.rs
   }
   return(out)
 }
+
+
+
+#' Overlays two vector geometries using GRASS GIS
+#'
+#' This function erase one geometry from another. The projection must be identical.
+#'
+#' @param x object of class \code{sf}. First element: Should be either of type line or polygon
+#' @param y object of class \code{sf}. Second element: Always of type polygon.
+#' @param operator operator of \code{v.overlay}. \code{"and"}: intersection,  \code{"or"}: union, \code{"not"}: difference, \code{"xor"}: symmetrical difference. Default: \code{"and"}
+#' @param ... other option for \code{v.overlay} set into params.
+#' @param unique.colnames Make columns names unique using \link[base]{make.unique}. Default: \code{TRUE}
+#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}
+#' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
+#' @return
+#' Geometry of class \code{sfc}
+#'
+#'
+#' @keywords simple feature, erase
+#'
+#'
+#' @export
+#'
+rgrass_overlay = function(x, y, operator = "and", ... , unique.colnames = TRUE, check.geom = TRUE, quiet = TRUE)
+{
+  path.x <- file.path(tempdir(), "tmp_x.shp")
+  path.y <- file.path(tempdir(), "tmp_y.shp")
+  path.result <- file.path(tempdir(), "tmp_result.shp")
+  
+  sf::st_write(obj = x, dsn = path.x, delete_layer = TRUE, quiet = quiet)
+  sf::st_write(obj = y, dsn = path.y, delete_layer = TRUE, quiet = quiet)
+  
+  # read into grass gis
+  # rgrass7::parseGRASS(cmd = "v.in.ogr")
+  rgrass7::execGRASS(cmd = "v.in.ogr", flags = c("quiet", "overwrite", "o"), Sys_show.output.on.console = FALSE, parameters = list(
+  input = path.x, output = "x"))
+  
+  rgrass7::execGRASS(cmd = "v.in.ogr", flags = c("quiet", "overwrite", "o"), Sys_show.output.on.console = FALSE, parameters = list(
+    input = path.y, output = "y"))
+  
+  # perform overlay
+  # rgrass7::parseGRASS(cmd = "v.overlay")
+  rgrass7::execGRASS(cmd = "v.overlay", flags = c("quiet", "overwrite"), Sys_show.output.on.console = FALSE, parameters = list(
+    ainput = "x", binput = "y", operator = operator, output = "result_overlay", ...))
+  
+  
+  # write from grass gis
+  # rgrass7::parseGRASS(cmd = "v.out.ogr")
+  rgrass7::execGRASS(cmd = "v.out.ogr", flags = c("quiet", "overwrite"), Sys_show.output.on.console = FALSE, parameters = list(
+    input = "result_overlay", output = path.result, format = "ESRI_Shapefile"))
+  
+  
+  ## read data
+  out <- sf::st_read(dsn = path.result, quiet = quiet)
+  
+  # remove, categories, replace a and b from output
+  out <- out %>% dplyr::select(-c("a_cat", "b_cat", "cat"))
+  names(out) <- gsub(pattern = "a_|b_", replacement = "", x = names(out))
+  
+  if(unique.colnames == TRUE)
+  {
+    names(out) <- make.unique(names = names(out), sep = "_")
+  }
+  
+  
+  ## check validity
+  if(check.geom && !all(sf::st_is_valid(out)))
+  {
+    warning('Some invalid geometries by "rgrass_erase". Try to correct geomeries using lwgeom::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
+    out <- lwgeom::st_make_valid(x = out)
+    
+    # if(method == "1")
+    # {
+    #   out <- suppressWarnings(out %>% sf::st_collection_extract(x = ., type = c("POLYGON")))
+    # }
+    # 
+    # if(method == "2")
+    # {
+    #   out <- suppressWarnings(out %>%  sf::st_collection_extract(x = ., type = c("LINESTRING")))
+    # }
+  }
+  return(out)
+}
+
 
 
 
