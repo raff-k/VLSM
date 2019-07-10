@@ -11,6 +11,7 @@ Most common landscape metrics are calculated on a raster-basis. However, sometim
 -   **Urban Sprawl** based on [Ackermann et al. 2013](https://www.schulthess.com/buchshop/detail/ISBN-9783784340326/Ackermann-Werne-Schweiger-Manue-Sukopp-Ulrich-fuer-Naturschutz-BfN-Bundesam-Editor/Indikatoren-zur-biologischen-Vielfalt?bpmbutton211549=1&bpmtoken=)
 -   **Integration Index** based on [Meinel & Winkler 2002](https://www2.ioer.de/recherche/pdf/2002_meinel_earsel.pdf)
 -   **Shape Index** based on [Forman & Godron 1986](https://link.springer.com/journal/10980)
+-   **Edge Length** based on [Walz 2013](http://rosdok.uni-rostock.de/file/rosdok_disshab_0000000980/rosdok_derivate_0000005089/Habilitationsschrift_Walz_2013.pdf)
 
 How to use the functions, please refer to the [vignette]().
 

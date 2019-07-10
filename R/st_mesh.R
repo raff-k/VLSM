@@ -45,11 +45,9 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
   
   if(do.preProcessing)
   {
-    if(!quiet) cat("... union geometries to a single geometry with resolved boundaries \n")
-    geom.frag <- geom.frag %>% sf::st_union(.)
-    
-    if(!quiet) cat("... split multi-parts to single-parts polygon \n")
-    geom.frag <- geom.frag %>% sf::st_cast(., "POLYGON") %>% sf::st_sf(ID_FRAG = 1:length(.), geometry = .)
+    if(!quiet) cat("... union geometries to a single-parts geometry with resolved boundaries \n")
+    geom.frag <- geom.frag %>% preProcessing(x = ., split = TRUE) %>% 
+                               dplyr::rename("ID_FRAG" = "ID")
   } else {
     geom.frag$ID_FRAG <- 1:nrow(geom.frag) ## add unique IDs
   }

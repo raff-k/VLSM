@@ -91,11 +91,9 @@ st_urban_sprawl = function(tool = "sf", geom.urban, geom.boundary = NULL, dist =
   ## do post-processing of urban geometry
   if(do.preProcessing)
   {
-    if(!quiet) cat("... union geometries to a single geometry with resolved boundaries \n")
-    geom.urban <- geom.urban %>% sf::st_union(.)
-    
-    if(!quiet) cat("... split multi-parts to single-parts polygon \n")
-    geom.urban <- geom.urban %>% sf::st_cast(., "POLYGON") %>% sf::st_sf(ID_URBAN = 1:length(.), geometry = .)
+    if(!quiet) cat("... union geometries to a single-parts geometry with resolved boundaries \n")
+    geom.urban <- geom.urban %>% preProcessing(x = ., split = TRUE) %>% 
+                                dplyr::rename("ID_URBAN" = "ID")
   } else {
     geom.urban$ID_URBAN <- 1:nrow(geom.urban) ## add unique IDs
   }

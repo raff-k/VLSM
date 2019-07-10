@@ -115,6 +115,41 @@ rsaga_erase = function(x, y, method = "1", split = "0", attributes = "1", env.rs
 
 
 
+#' Dissolve geometry as a pre-processing step
+#'
+#' This function performs a \code{sf::st_union} on a given geometry
+#'
+#' @param x object of class \code{sf}
+#' @param split If \code{TRUE} (default), then a single-part-polygon is returned
+#' @return
+#' Geometry of class \code{sf} with dissolved boundaries
+#'
+#'
+#' @keywords simple feature, erase
+#'
+#'
+#' @export
+#'
+preProcessing <- function(x, split = TRUE)
+{
+  x.tmp <- x %>% sf::st_union(.)
+  
+  if(split)
+  {
+    x.tmp <- x.tmp %>% sf::st_cast(., "POLYGON")
+  } 
+  
+  x.tmp <- x.tmp %>%
+    sf::st_sf(ID = 1:length(.), geometry = .) # %>%
+    # dplyr::mutate(A_ha = sf::st_area(.) %>% as.numeric(.) %>% (function(x = .) x/(100*100)))
+  
+  if(!all(sf::st_is_valid(x.tmp))){x.tmp <- x.tmp %>% lwgeom::st_make_valid(.)}
+  
+  return(x.tmp)
+}
+
+
+
 #' Overlays two vector geometries using GRASS GIS
 #'
 #' This function erase one geometry from another. The projection must be identical.
