@@ -115,14 +115,15 @@ st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary =
     stop("No valid input tool! \n")
   }
   
-  
+  if(!quiet) cat('... post-process erase geometry \n')
+  erase <- erase %>% preProcessing(x = ., split = TRUE)
   
   
   if(!quiet) cat('... conversion to lines \n')
   if(dist.new > 0)
   {
     # ... it is basically not a line!
-    line.erase <-  sf::st_buffer(x = erase, dist = dist.new) %>% preProcessing(x = ., split = TRUE) %>% dplyr::rename("ID_x" = "ID") %>% sf::st_set_precision(x = ., precision = precision)
+    line.erase <-  sf::st_buffer(x = erase, dist = dist.new)  %>% sf::st_set_precision(x = ., precision = precision) # preProcessing(x = ., split = TRUE) %>% dplyr::rename("ID_x" = "ID")
   } else {
     line.erase <-  sf::st_cast(x = erase, to = "MULTILINESTRING") %>% sf::st_set_precision(x = ., precision = precision)
   }
