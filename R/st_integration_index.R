@@ -11,9 +11,11 @@
 #' @param precision precision for process using \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}
 #' @param env.rsaga environment of \code{SAGA GIS}. If st_erase fails then \code{SAGA GIS} erase is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}
 #' @param snap.rgrass similar to \code{sf::st_set_precision}. Snapping threshold for boundaries. Default: \code{1e-04}
+#' @param dist.new buffer distance in mapping units around new geometry (result of erase) using \code{sf::st_buffer}. Default: \code{0} 
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param quiet show output on console. Default: \code{FALSE}
-#' @note Code is based on the following references:
+#' @note If the unique border line has incomprehensible gabs(can happen for "complicated" geometries), it can help to use a small buffer distance (< 0.05, e.g. 1e-04) by \code{dist.new} to get a complete edge line
+#' Code is based on the following references:
 #' \itemize{
 #'   \item Meinel, G., & Winkler, M. (2002). Spatial analysis of settlement and open land trends in urban areas on basis of RS data œ studies of five European cities over a 50-year period.
 #'   \item Siedentop, S., Heiland, S., Lehmann, I., & Schauerte-Lüke, N. (2007). Regionale Schlüsselindikatoren nachhaltiger Flächennutzung für die Fortschrittsberichte der Nationalen Nachhaltigkeitsstrategie–Flächenziele (Nachhaltigkeitsbarometer Fläche). Abschlussbericht, BBR-Forschungen, H, 130.
@@ -29,7 +31,7 @@
 #' @export
 #'
 st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary = NULL, tol = 0.1, precision = 0,
-                                env.rsaga = NULL, snap.rgrass = 1e-5, return.geom = FALSE, quiet = FALSE){
+                                env.rsaga = NULL, snap.rgrass = 1e-5, dist.new = 0, return.geom = FALSE, quiet = FALSE){
   
   # get start time of process
   process.time.start <- proc.time()
@@ -117,7 +119,13 @@ st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary =
   
   
   if(!quiet) cat('... conversion to lines \n')
-  line.erase <-  sf::st_cast(x = erase, to = "MULTILINESTRING") %>% sf::st_set_precision(x = ., precision = precision)
+  if(dist.new > 0)
+  {
+    # ... it is basically not a line!
+    line.erase <-  sf::st_buffer(x = erase, dist = dist.new) %>% preProcessing(x = ., split = TRUE) %>% dplyr::rename("ID_x" = "ID") %>% sf::st_set_precision(x = ., precision = precision)
+  } else {
+    line.erase <-  sf::st_cast(x = erase, to = "MULTILINESTRING") %>% sf::st_set_precision(x = ., precision = precision)
+  }
   line.inter <- sf::st_cast(x = inter, to = "MULTILINESTRING") %>% sf::st_set_precision(x = ., precision = precision)
   
   ## common border

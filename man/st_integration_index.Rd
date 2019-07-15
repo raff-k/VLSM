@@ -6,7 +6,8 @@
 \usage{
 st_integration_index(tool = "sf", geom.old, geom.new,
   geom.boundary = NULL, tol = 0.1, precision = 0, env.rsaga = NULL,
-  snap.rgrass = 1e-05, return.geom = FALSE, quiet = FALSE)
+  snap.rgrass = 1e-05, dist.new = 0, return.geom = FALSE,
+  quiet = FALSE)
 }
 \arguments{
 \item{tool}{tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set}
@@ -25,6 +26,8 @@ st_integration_index(tool = "sf", geom.old, geom.new,
 
 \item{snap.rgrass}{similar to \code{sf::st_set_precision}. Snapping threshold for boundaries. Default: \code{1e-04}}
 
+\item{dist.new}{buffer distance in mapping units around new geometry (result of erase) using \code{sf::st_buffer}. Default: \code{0}}
+
 \item{return.geom}{If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}}
 
 \item{quiet}{show output on console. Default: \code{FALSE}}
@@ -37,6 +40,7 @@ This function calculates an index defining the intergration of new land use area
 of the same land use class conisdering two different time steps.
 }
 \note{
+If the unique border line has incomprehensible gabs(can happen for "complicated" geometries), it can help to use a small buffer distance (< 0.05, e.g. 1e-04) by \code{dist.new} to get a complete edge line
 Code is based on the following references:
 \itemize{
 \item Meinel, G., & Winkler, M. (2002). Spatial analysis of settlement and open land trends in urban areas on basis of RS data œ studies of five European cities over a 50-year period.

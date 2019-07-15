@@ -29,7 +29,7 @@ st_edge_length(x, y, dist.x = 0, dist.y = 0, do.preProcessing = TRUE,
 This function calculates the edge length between two geometries.
 }
 \note{
-If the edge line has incomprehensible gabs(can happen for "complicated" geometries), it can help to use a small buffer distance (< 1) to get a complete edge line.
+If the edge line has incomprehensible gabs(can happen for "complicated" geometries), it can help to use a small buffer distance (< 1, e.g. 1e-04) to get a complete edge line.
 }
 \keyword{edge}
 \keyword{length}

@@ -9,7 +9,7 @@
 #' @param do.preProcessing If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param quiet If set to \code{FALSE}, actual state is printed to console. Default: \code{TRUE}.
-#' @note If the edge line has incomprehensible gabs(can happen for "complicated" geometries), it can help to use a small buffer distance (< 1) to get a complete edge line.
+#' @note If the edge line has incomprehensible gabs(can happen for "complicated" geometries), it can help to use a small buffer distance (< 1, e.g. 1e-04) to get a complete edge line.
 #' @return
 #'  \code{list} with edge length, and if \code{return.geom} is \code{TRUE} also the edge-length-geometry (and eventually buffer results).
 #'
