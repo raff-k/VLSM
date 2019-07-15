@@ -105,10 +105,12 @@ st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary =
       })
     } # end of use.saga
   } else if(tool == "grass"){
+    if(!quiet) cat("... intersection of input geometries \n")
     inter <-  rgrass_overlay(x = geom.old, y = geom.new, operator = "and", snap = snap.rgrass) %>%  # and: also known as 'intersection' in GIS
                   dplyr::select("geometry") %>%
                   dplyr::mutate(ID_inter = 1:nrow(.))
     
+    if(!quiet) cat('... erase intersection from "geom.new" (this can take a while!) \n')
     erase <- rgrass_overlay(x = geom.new, y = inter, operator = "not", snap = snap.rgrass) %>% # not: also known as 'difference' 
                     .[which(x = as.numeric(sf::st_area(.)) >= tol),]
   } else {
