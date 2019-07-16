@@ -12,6 +12,7 @@
 #' @param precision precision for process \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}
 #' @param extent Numeric value representing extent for area. Format of vector: \code{c(xmin, xmax, ymax, ymin)}. Default: \code{NULL}
 #' @param force.extent If \code{TRUE} extent is used instead of \code{geom.boundary} (if both are present). Default: \code{FALSE}
+#' @param override If \code{TRUE} projection of geometry-operation is replaced by projection of \code{geom.urban}. This flag prevents errors when the original datum is not found by the \code{tool}. Dafault: \code{FALSE} 
 #' @param do.preProcessing If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts. By this step it is assured, that polygon connected to each other are summarized
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param env.rsaga environment of \code{SAGA GIS}. If \code{st_erase} fails then \code{SAGA GIS erase} is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}
@@ -31,7 +32,7 @@
 #' @export
 #'
 st_urban_sprawl = function(tool = "sf", geom.urban, geom.boundary = NULL, dist = c(100, 100), trans = function(x, trans.k){x-1+1/(x+trans.k)}, trans.k = 1, tol = 0.1, extent = NULL, force.extent = FALSE,
-                           precision = 0, do.preProcessing = TRUE,  return.geom = FALSE, env.rsaga = NULL, quiet = TRUE)
+                           override = FALSE, precision = 0, do.preProcessing = TRUE,  return.geom = FALSE, env.rsaga = NULL, quiet = TRUE)
 {
   # get start time of process
   process.time.start <- proc.time()
@@ -129,6 +130,12 @@ st_urban_sprawl = function(tool = "sf", geom.urban, geom.boundary = NULL, dist =
                                 sf::st_collection_extract(x = ., type = "LINESTRING"))
   } else {
     stop("No valid input tool! \n")
+  }
+  
+  if(override)
+  {
+    if(!quiet) cat("... override projection \n")
+    erase <- suppressWarnings(erase %>% sf::st_set_crs(., value = geom.urban %>% sf::st_crs(.)))
   }
   
   ## split to single part

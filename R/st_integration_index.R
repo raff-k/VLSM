@@ -12,6 +12,7 @@
 #' @param env.rsaga environment of \code{SAGA GIS}. If st_erase fails then \code{SAGA GIS} erase is used. Default: \code{NULL}, but in function call if not set: \link[RSAGA]{rsaga.env}
 #' @param snap.rgrass similar to \code{sf::st_set_precision}. Snapping threshold for boundaries. Default: \code{1e-04}
 #' @param dist.new buffer distance in mapping units around new geometry (result of erase) using \code{sf::st_buffer}. Default: \code{0} 
+#' @param override If \code{TRUE} projection of geometry-operation is replaced by projection of \code{geom.old}. This flag prevents errors when the original datum is not found by the \code{tool}. Dafault: \code{FALSE} 
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param quiet show output on console. Default: \code{FALSE}
 #' @note If the unique border line has incomprehensible gabs(can happen for "complicated" geometries), it can help to use a small buffer distance (< 0.05, e.g. 1e-04) by \code{dist.new} to get a complete edge line
@@ -31,7 +32,7 @@
 #' @export
 #'
 st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary = NULL, tol = 0.1, precision = 0,
-                                env.rsaga = NULL, snap.rgrass = 1e-5, dist.new = 0, return.geom = FALSE, quiet = FALSE){
+                                env.rsaga = NULL, snap.rgrass = 1e-5, dist.new = 0, override = TRUE, return.geom = FALSE, quiet = FALSE){
   
   # get start time of process
   process.time.start <- proc.time()
@@ -115,6 +116,13 @@ st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary =
                     .[which(x = as.numeric(sf::st_area(.)) >= tol),]
   } else {
     stop("No valid input tool! \n")
+  }
+  
+  if(override)
+  {
+    if(!quiet) cat("... override projection \n")
+    erase <- suppressWarnings(erase %>% sf::st_set_crs(., value = geom.old %>% sf::st_crs(.)))
+    inter <- suppressWarnings(inter %>% sf::st_set_crs(., value = geom.old %>% sf::st_crs(.)))
   }
   
   if(!quiet) cat('... post-process erase geometry \n')

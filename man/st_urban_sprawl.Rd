@@ -7,8 +7,9 @@
 st_urban_sprawl(tool = "sf", geom.urban, geom.boundary = NULL,
   dist = c(100, 100), trans = function(x, trans.k) {     x - 1 + 1/(x +
   trans.k) }, trans.k = 1, tol = 0.1, extent = NULL,
-  force.extent = FALSE, precision = 0, do.preProcessing = TRUE,
-  return.geom = FALSE, env.rsaga = NULL, quiet = TRUE)
+  force.extent = FALSE, override = FALSE, precision = 0,
+  do.preProcessing = TRUE, return.geom = FALSE, env.rsaga = NULL,
+  quiet = TRUE)
 }
 \arguments{
 \item{tool}{tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set.}
@@ -28,6 +29,8 @@ st_urban_sprawl(tool = "sf", geom.urban, geom.boundary = NULL,
 \item{extent}{Numeric value representing extent for area. Format of vector: \code{c(xmin, xmax, ymax, ymin)}. Default: \code{NULL}}
 
 \item{force.extent}{If \code{TRUE} extent is used instead of \code{geom.boundary} (if both are present). Default: \code{FALSE}}
+
+\item{override}{If \code{TRUE} projection of geometry-operation is replaced by projection of \code{geom.urban}. This flag prevents errors when the original datum is not found by the \code{tool}. Dafault: \code{FALSE}}
 
 \item{precision}{precision for process \code{sf::st_set_precision}. See \link[sf]{st_precision}. Default: \code{0}}
 

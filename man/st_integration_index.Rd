@@ -6,8 +6,8 @@
 \usage{
 st_integration_index(tool = "sf", geom.old, geom.new,
   geom.boundary = NULL, tol = 0.1, precision = 0, env.rsaga = NULL,
-  snap.rgrass = 1e-05, dist.new = 0, return.geom = FALSE,
-  quiet = FALSE)
+  snap.rgrass = 1e-05, dist.new = 0, override = TRUE,
+  return.geom = FALSE, quiet = FALSE)
 }
 \arguments{
 \item{tool}{tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set}
@@ -27,6 +27,8 @@ st_integration_index(tool = "sf", geom.old, geom.new,
 \item{snap.rgrass}{similar to \code{sf::st_set_precision}. Snapping threshold for boundaries. Default: \code{1e-04}}
 
 \item{dist.new}{buffer distance in mapping units around new geometry (result of erase) using \code{sf::st_buffer}. Default: \code{0}}
+
+\item{override}{If \code{TRUE} projection of geometry-operation is replaced by projection of \code{geom.old}. This flag prevents errors when the original datum is not found by the \code{tool}. Dafault: \code{FALSE}}
 
 \item{return.geom}{If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}}
 
