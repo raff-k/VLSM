@@ -5,7 +5,7 @@
 \title{Overlays two vector geometries using GRASS GIS}
 \usage{
 rgrass_overlay(x, y, operator = "and", ..., unique.colnames = TRUE,
-  check.geom = TRUE, quiet = TRUE)
+  check.geom = TRUE, stringsAsFactors = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{x}{object of class \code{sf}. First element: Should be either of type line or polygon}
@@ -20,13 +20,15 @@ rgrass_overlay(x, y, operator = "and", ..., unique.colnames = TRUE,
 
 \item{check.geom}{If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}}
 
+\item{stringsAsFactors}{Default: \code{FALSE}}
+
 \item{quiet}{If \code{FALSE} then comments are printed. Default: \code{TRUE}}
 }
 \value{
 Geometry of class \code{sfc}
 }
 \description{
-This function erase one geometry from another. The projection must be identical.
+This function overlais one geometry with another. The projection must be identical.
 }
 \keyword{erase}
 \keyword{feature,}

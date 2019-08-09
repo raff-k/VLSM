@@ -152,7 +152,7 @@ preProcessing <- function(x, split = TRUE)
 
 #' Overlays two vector geometries using GRASS GIS
 #'
-#' This function erase one geometry from another. The projection must be identical.
+#' This function overlais one geometry with another. The projection must be identical.
 #'
 #' @param x object of class \code{sf}. First element: Should be either of type line or polygon
 #' @param y object of class \code{sf}. Second element: Always of type polygon.
@@ -160,6 +160,7 @@ preProcessing <- function(x, split = TRUE)
 #' @param ... other option for \code{v.overlay} set into params.
 #' @param unique.colnames Make columns names unique using \link[base]{make.unique}. Default: \code{TRUE}
 #' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}
+#' @param stringsAsFactors Default: \code{FALSE}
 #' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
 #' @return
 #' Geometry of class \code{sfc}
@@ -170,7 +171,7 @@ preProcessing <- function(x, split = TRUE)
 #'
 #' @export
 #'
-rgrass_overlay = function(x, y, operator = "and", ... , unique.colnames = TRUE, check.geom = TRUE, quiet = TRUE)
+rgrass_overlay = function(x, y, operator = "and", ... , unique.colnames = TRUE, check.geom = TRUE, stringsAsFactors = FALSE, quiet = TRUE)
 {
   path.x <- file.path(tempdir(), "tmp_x.shp")
   path.y <- file.path(tempdir(), "tmp_y.shp")
@@ -200,7 +201,7 @@ rgrass_overlay = function(x, y, operator = "and", ... , unique.colnames = TRUE, 
   
   
   ## read data
-  out <- sf::st_read(dsn = path.result, quiet = quiet)
+  out <- sf::st_read(dsn = path.result, quiet = quiet,  stringsAsFactors = stringsAsFactors)
   
   # remove, categories, replace a and b from output
   out <- out %>% dplyr::select(-c("a_cat", "b_cat", "cat"))
@@ -232,6 +233,135 @@ rgrass_overlay = function(x, y, operator = "and", ... , unique.colnames = TRUE, 
 }
 
 
+
+
+#' Dissolves geometries using GRASS GIS
+#'
+#' This function dissolves a geometry. Optionnally, based on a fiel input.
+#'
+#' @param x object of class \code{sf}. Always of type polygon.
+#' @param ... other option for \code{v.dissolve} set into params (e.g. layer or column).
+#' @param split export vector data as single features. Default: \code{FALSE}
+#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}
+#' @param stringsAsFactors Default: \code{FALSE}
+#' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
+#' @return
+#' Geometry of class \code{sf}
+#'
+#'
+#' @keywords simple feature, dissolve
+#'
+#'
+#' @export
+#'
+rgrass_dissolve = function(x, ... , split = FALSE, check.geom = TRUE, stringsAsFactors = FALSE, quiet = TRUE)
+{
+  path.x <- file.path(tempdir(), "tmp_x.shp")
+  path.result <- file.path(tempdir(), "tmp_result.shp")
+  
+  sf::st_write(obj = x, dsn = path.x, delete_layer = TRUE, quiet = quiet)
+  
+  # read into grass gis
+  # rgrass7::parseGRASS(cmd = "v.in.ogr")
+  rgrass7::execGRASS(cmd = "v.in.ogr", flags = c("quiet", "overwrite", "o"), Sys_show.output.on.console = FALSE, parameters = list(
+    input = path.x, output = "x"))
+  
+
+  # perform dissolve
+  # rgrass7::parseGRASS(cmd = "v.dissolve")
+  rgrass7::execGRASS(cmd = "v.dissolve", flags = c("quiet", "overwrite"), Sys_show.output.on.console = FALSE, parameters = list(
+    input = "x", output = "result_dissolve", ...))
+  
+  
+  # write from grass gis
+  if(split)
+  {
+    # rgrass7::parseGRASS(cmd = "v.out.ogr")
+    rgrass7::execGRASS(cmd = "v.out.ogr", flags = c("quiet", "overwrite"), Sys_show.output.on.console = FALSE, parameters = list(
+      input = "result_dissolve", output = path.result, format = "ESRI_Shapefile"))
+  } else {
+    rgrass7::execGRASS(cmd = "v.out.ogr", flags = c("quiet", "overwrite", "m"), Sys_show.output.on.console = FALSE, parameters = list(
+      input = "result_dissolve", output = path.result, format = "ESRI_Shapefile"))
+  }
+
+  
+  
+  ## read data
+  out <- sf::st_read(dsn = path.result, quiet = quiet, stringsAsFactors = stringsAsFactors)
+  
+
+  ## check validity
+  if(check.geom && !all(sf::st_is_valid(out)))
+  {
+    warning('Some invalid geometries by "rgrass_erase". Try to correct geomeries using lwgeom::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
+    out <- lwgeom::st_make_valid(x = out)
+    
+  }
+  return(out)
+}
+
+
+
+
+
+
+#' Make geometries valid using GRASS GIS
+#'
+#' This function cleans a geometry.
+#'
+#' @param x object of class \code{sf}. Always of type polygon.
+#' @param tool Cleaning tool. Can be \code{"break, snap, rmdangle, chdangle, rmbridge, chbridge, rmdupl, rmdac, bpol, prune, rmarea, rmline, rmsa"}. Default: \code{"break"}
+#' @param check.geom If set to \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{FALSE}
+#' @param stringsAsFactors Default: \code{FALSE}
+#' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
+#' @return
+#' Geometry of class \code{sf}
+#'
+#'
+#' @keywords simple feature, dissolve
+#'
+#'
+#' @export
+#'
+rgrass_make_valid <- function(x, tool = "break", check.geom = FALSE, stringsAsFactors = FALSE, quiet = TRUE)
+{
+  path.x <- file.path(tempdir(), "tmp_x.shp")
+  path.result <- file.path(tempdir(), "tmp_result.shp")
+  
+  sf::st_write(obj = x, dsn = path.x, delete_layer = TRUE, quiet = quiet)
+  
+  # read into grass gis
+  # rgrass7::parseGRASS(cmd = "v.in.ogr")
+  rgrass7::execGRASS(cmd = "v.in.ogr", flags = c("quiet", "overwrite", "o"), Sys_show.output.on.console = FALSE, parameters = list(
+    input = path.x, output = "x"))
+  
+  
+  # read into grass gis
+  # rgrass7::parseGRASS(cmd = "v.clean")
+  rgrass7::execGRASS(cmd = "v.clean", flags = c("quiet", "overwrite", "c"), Sys_show.output.on.console = FALSE, parameters = list(
+    input = "x", output = "result_clean", tool = tool))
+  
+  
+  # write from grass gis
+  # rgrass7::parseGRASS(cmd = "v.out.ogr")
+  rgrass7::execGRASS(cmd = "v.out.ogr", flags = c("quiet", "overwrite"), Sys_show.output.on.console = FALSE, parameters = list(
+      input = "result_clean", output = path.result, format = "ESRI_Shapefile"))
+  
+  
+  ## read data
+  out <- sf::st_read(dsn = path.result, quiet = quiet, stringsAsFactors = stringsAsFactors)
+  
+  out <- out %>% dplyr::select(-c("cat"))
+  
+  ## check validity
+  if(check.geom && !all(sf::st_is_valid(out)))
+  {
+    warning('Some invalid geometries by "rgrass_erase". Try to correct geomeries using lwgeom::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
+    out <- lwgeom::st_make_valid(x = out)
+    
+  }
+  return(out)
+}
 
 
 
