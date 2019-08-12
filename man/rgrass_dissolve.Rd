@@ -24,7 +24,7 @@ rgrass_dissolve(x, ..., split = FALSE, check.geom = TRUE,
 Geometry of class \code{sf}
 }
 \description{
-This function dissolves a geometry. Optionnally, based on a fiel input.
+This function dissolves a geometry. Optionnally, based on a field input.
 }
 \keyword{dissolve}
 \keyword{feature,}

@@ -1,5 +1,6 @@
 utils::globalVariables(c(".", "%>%", "A_BOUNDS", "A_FRAG", "A_FRAG_INTER", "ID_BOUNDS", "ID_BNDS", "ID_FRAG", "Ci", 
-                        "Fi", "Fg", "CiErg", "Fi_CBC1", "Fi_CBC2", "L", "L_trans", "P"))
+                        "Fi", "Fg", "CiErg", "Fi_CBC1", "Fi_CBC2", "L", "L_trans", "P", "A_T_m_sq",
+                        "A_m_sq", "P_LogP"))
 
 #' Erase one geometry from another
 #'
@@ -237,7 +238,7 @@ rgrass_overlay = function(x, y, operator = "and", ... , unique.colnames = TRUE, 
 
 #' Dissolves geometries using GRASS GIS
 #'
-#' This function dissolves a geometry. Optionnally, based on a fiel input.
+#' This function dissolves a geometry. Optionnally, based on a field input.
 #'
 #' @param x object of class \code{sf}. Always of type polygon.
 #' @param ... other option for \code{v.dissolve} set into params (e.g. layer or column).
@@ -269,7 +270,7 @@ rgrass_dissolve = function(x, ... , split = FALSE, check.geom = TRUE, stringsAsF
 
   # perform dissolve
   # rgrass7::parseGRASS(cmd = "v.dissolve")
-  rgrass7::execGRASS(cmd = "v.dissolve", flags = c("quiet", "overwrite"), Sys_show.output.on.console = FALSE, parameters = list(
+  rgrass7::execGRASS(cmd = "v.dissolve", flags = c("quiet", "overwrite"), parameters = list( # Sys_show.output.on.console = FALSE -  FAILS
     input = "x", output = "result_dissolve", ...))
   
   
@@ -284,8 +285,10 @@ rgrass_dissolve = function(x, ... , split = FALSE, check.geom = TRUE, stringsAsF
       input = "result_dissolve", output = path.result, format = "ESRI_Shapefile"))
   }
 
-  
-  
+  # rgrass7::parseGRASS(cmd = "g.remove")
+  # rgrass7::execGRASS(cmd = "g.remove", flags = c("quiet", "f"), Sys_show.output.on.console = FALSE, parameters = list(
+  #   type = "vector", name = "result_dissolve,x"))
+
   ## read data
   out <- sf::st_read(dsn = path.result, quiet = quiet, stringsAsFactors = stringsAsFactors)
   
@@ -293,7 +296,7 @@ rgrass_dissolve = function(x, ... , split = FALSE, check.geom = TRUE, stringsAsF
   ## check validity
   if(check.geom && !all(sf::st_is_valid(out)))
   {
-    warning('Some invalid geometries by "rgrass_erase". Try to correct geomeries using lwgeom::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
+    warning('Some invalid geometries by "rgrass_dissolve". Try to correct geomeries using lwgeom::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
     out <- lwgeom::st_make_valid(x = out)
     
   }
