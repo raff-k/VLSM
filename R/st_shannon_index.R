@@ -67,14 +67,14 @@ st_shannon_index = function(tool = "sf", x, field, do.preProcessing = TRUE, retu
   ## get total data
   x.summerize <- x %>% sf::st_drop_geometry(.) %>% 
                        dplyr::group_by(!!as.name(field)) %>% 
-                       dplyr::summarise(A_T_m_sq = sum(A_m_sq, na.rm = TRUE)) %>%
+                       dplyr::summarise(A_T_m_sq = sum(A_m_sq, na.rm = TRUE), n = n()) %>%
                        dplyr::mutate(A_TT_m_sq = sum(A_T_m_sq, na.rm = TRUE),
                                      P = A_T_m_sq/A_TT_m_sq,
                                      P_LogP = P * log(P))
   
   ## get SHDI
   SHDI <- sum(x.summerize$P_LogP, na.rm = TRUE)*(-1)
-  
+  SHDI_norm <- sum(x.summerize$P_LogP, na.rm = TRUE)*(-1)/log(nrow(x.summerize))
   
   if(!quiet) cat("... merge back summarized data and calculate SHDI for internal diversity \n")
   ## merge data back
@@ -90,20 +90,18 @@ st_shannon_index = function(tool = "sf", x, field, do.preProcessing = TRUE, retu
   ## summarize based on classes (internal diversity)
   SHDI.internal.table <- x.out %>% sf::st_drop_geometry(.) %>%
                           dplyr::group_by(!!as.name(field)) %>%
-                          dplyr::summarise(SHDI_intern = sum(P_LogP, na.rm = TRUE)*(-1)) %>%
+                          dplyr::summarise(SHDI_intern = sum(P_LogP, na.rm = TRUE)*(-1), n = unique(n)) %>%
+                          dplyr::mutate(SHDI_intern_norm = SHDI_intern/log(n)) %>%
                           data.table::as.data.table(.)
                           
-  ## SHDI
-  SHDI.internal <- sum(SHDI.internal.table$P_LogP, na.rm = TRUE)*(-1)
-
 
   process.time.run <- proc.time() - process.time.start
   if(quiet == FALSE) cat("------ Run of st_shannon_index: " , round(process.time.run["elapsed"][[1]]/60, digits = 4), " Minutes \n")
   
   if(return.geom)
   {
-    return(list(SHDI = SHDI, SHDI_table = x.summerize, SHDI_internal = SHDI.internal, SHDI_internal_table = SHDI.internal.table, geom = x.out))
+    return(list(SHDI = SHDI, SHDI_table = x.summerize, SHDI_internal_table = SHDI.internal.table, geom = x.out))
   } else {
-    return(list(SHDI = SHDI, SHDI_table = x.summerize, SHDI_internal = SHDI.internal, SHDI_internal_table = SHDI.internal.table))
+    return(list(SHDI = SHDI, SHDI_table = x.summerize, SHDI_internal_table = SHDI.internal.table))
   }
 } # end of function st_shannon_index

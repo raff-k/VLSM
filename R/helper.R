@@ -1,6 +1,6 @@
 utils::globalVariables(c(".", "%>%", "A_BOUNDS", "A_FRAG", "A_FRAG_INTER", "ID_BOUNDS", "ID_BNDS", "ID_FRAG", "Ci", 
                         "Fi", "Fg", "CiErg", "Fi_CBC1", "Fi_CBC2", "L", "L_trans", "P", "A_T_m_sq",
-                        "A_m_sq", "P_LogP", "A_TT_m_sq"))
+                        "A_m_sq", "P_LogP", "A_TT_m_sq", "n", "SHDI_intern"))
 
 #' Erase one geometry from another
 #'
