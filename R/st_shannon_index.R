@@ -74,7 +74,7 @@ st_shannon_index = function(tool = "sf", x, field, do.preProcessing = TRUE, retu
   
   ## get SHDI
   SHDI <- sum(x.summerize$P_LogP, na.rm = TRUE)*(-1)
-  SHDI_norm <- sum(x.summerize$P_LogP, na.rm = TRUE)*(-1)/log(nrow(x.summerize))
+  SHDI.norm <- sum(x.summerize$P_LogP, na.rm = TRUE)*(-1)/log(nrow(x.summerize))
   
   if(!quiet) cat("... merge back summarized data and calculate SHDI for internal diversity \n")
   ## merge data back
@@ -100,8 +100,8 @@ st_shannon_index = function(tool = "sf", x, field, do.preProcessing = TRUE, retu
   
   if(return.geom)
   {
-    return(list(SHDI = SHDI, SHDI_table = x.summerize, SHDI_internal_table = SHDI.internal.table, geom = x.out))
+    return(list(SHDI = SHDI, SHDI_norm = SHDI.norm, SHDI_table = x.summerize, SHDI_internal_table = SHDI.internal.table, geom = x.out))
   } else {
-    return(list(SHDI = SHDI, SHDI_table = x.summerize, SHDI_internal_table = SHDI.internal.table))
+    return(list(SHDI = SHDI, SHDI_norm = SHDI.norm, SHDI_table = x.summerize, SHDI_internal_table = SHDI.internal.table))
   }
 } # end of function st_shannon_index
