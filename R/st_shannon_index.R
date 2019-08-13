@@ -67,36 +67,43 @@ st_shannon_index = function(tool = "sf", x, field, do.preProcessing = TRUE, retu
   ## get total data
   x.summerize <- x %>% sf::st_drop_geometry(.) %>% 
                        dplyr::group_by(!!as.name(field)) %>% 
-                       dplyr::summarise(A_T_m_sq = sum(A_m_sq, na.rm = TRUE))
+                       dplyr::summarise(A_T_m_sq = sum(A_m_sq, na.rm = TRUE)) %>%
+                       dplyr::mutate(A_TT_m_sq = sum(A_T_m_sq, na.rm = TRUE),
+                                     P = A_T_m_sq/A_TT_m_sq,
+                                     P_LogP = P * log(P))
+  
+  ## get SHDI
+  SHDI <- sum(x.summerize$P_LogP, na.rm = TRUE)*(-1)
   
   
-  if(!quiet) cat("... merge back summarized data and calculate SHDI \n")
+  if(!quiet) cat("... merge back summarized data and calculate SHDI for internal diversity \n")
   ## merge data back
-  x.out <- x %>% merge(x = ., y = x.summerize, all.x = TRUE, by = field)
-  
-  
+  x.out <- x %>% merge(x = ., y = x.summerize %>% dplyr::select(-c("A_TT_m_sq", "P", "P_LogP")),
+                       all.x = TRUE, by = field)
+
+
   ## calculate P (proportion of the landscape occupied by patch type (class) i)
   x.out <- x.out %>% dplyr::mutate(P = A_m_sq/A_T_m_sq,
                                    P_LogP = P * log(P))
-  
-  
-  ## summarize based on classes
-  SHDI.field <- x.out %>% sf::st_drop_geometry(.) %>% 
-                          dplyr::group_by(!!as.name(field)) %>% 
-                          dplyr::summarise(SHDI = sum(P_LogP, na.rm = TRUE)*(-1)) %>%
+
+
+  ## summarize based on classes (internal diversity)
+  SHDI.internal.table <- x.out %>% sf::st_drop_geometry(.) %>%
+                          dplyr::group_by(!!as.name(field)) %>%
+                          dplyr::summarise(SHDI_intern = sum(P_LogP, na.rm = TRUE)*(-1)) %>%
                           data.table::as.data.table(.)
                           
-  ## overall SHDI
-  SHDI <- sum(x.out$P_LogP, na.rm = TRUE)*(-1)
-  
-  
+  ## SHDI
+  SHDI.internal <- sum(SHDI.internal.table$P_LogP, na.rm = TRUE)*(-1)
+
+
   process.time.run <- proc.time() - process.time.start
   if(quiet == FALSE) cat("------ Run of st_shannon_index: " , round(process.time.run["elapsed"][[1]]/60, digits = 4), " Minutes \n")
   
   if(return.geom)
   {
-    return(list(SHDI = SHDI, SHDI_field = SHDI.field, geom = x.out))
+    return(list(SHDI = SHDI, SHDI_table = x.summerize, SHDI_internal = SHDI.internal, SHDI_internal_table = SHDI.internal.table, geom = x.out))
   } else {
-    return(list(SHDI = SHDI, SHDI_field = SHDI.field))
+    return(list(SHDI = SHDI, SHDI_table = x.summerize, SHDI_internal = SHDI.internal, SHDI_internal_table = SHDI.internal.table))
   }
 } # end of function st_shannon_index
