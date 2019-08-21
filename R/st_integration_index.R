@@ -14,7 +14,7 @@
 #' @param dist.new buffer distance in mapping units around new geometry (result of erase) using \code{sf::st_buffer}. Default: \code{0} 
 #' @param override If \code{TRUE} projection of geometry-operation is replaced by projection of \code{geom.old}. This flag prevents errors when the original datum is not found by the \code{tool}. Dafault: \code{FALSE} 
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
-#' @param quiet show output on console. Default: \code{FALSE}
+#' @param quiet If set to \code{FALSE} actual state is printed to console. Default: \code{TRUE}.
 #' @note If the unique border line has incomprehensible gabs(can happen for "complicated" geometries), it can help to use a small buffer distance (< 0.05, e.g. 1e-04) by \code{dist.new} to get a complete edge line
 #' Code is based on the following references:
 #' \itemize{
@@ -32,7 +32,7 @@
 #' @export
 #'
 st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary = NULL, tol = 0.1, precision = 0,
-                                env.rsaga = NULL, snap.rgrass = 1e-5, dist.new = 0, override = TRUE, return.geom = FALSE, quiet = FALSE){
+                                env.rsaga = NULL, snap.rgrass = 1e-5, dist.new = 0, override = TRUE, return.geom = FALSE, quiet = TRUE){
   
   # get start time of process
   process.time.start <- proc.time()

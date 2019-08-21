@@ -6,6 +6,7 @@
 #' @param y polygon of class \code{sf} representing geometry of which the edge length is calculated
 #' @param dist.x buffer distance in mapping units around geometry using \code{sf::st_buffer}. Default: \code{0} 
 #' @param dist.y buffer distance in mapping units around geometry using \code{sf::st_buffer}. Default: \code{0} 
+#' @param geom.boundary polygon of class \code{sf} representing subregions, e.g. administrative boundaries
 #' @param do.preProcessing If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts
 #' @param return.geom If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}
 #' @param quiet If set to \code{FALSE}, actual state is printed to console. Default: \code{TRUE}.
@@ -19,12 +20,15 @@
 #'
 #' @export
 #'
-st_edge_length = function(x, y, dist.x = 0, dist.y = 0, do.preProcessing = TRUE, return.geom = FALSE, quiet = TRUE)
+st_edge_length = function(x, y, dist.x = 0, dist.y = 0, geom.boundary = NULL, do.preProcessing = TRUE, return.geom = FALSE, quiet = TRUE)
 {
   
   # get start time of process
   process.time.start <- proc.time()
   result.list <- list()
+  
+  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
+  
   
   if(do.preProcessing)
   {
@@ -59,11 +63,30 @@ st_edge_length = function(x, y, dist.x = 0, dist.y = 0, do.preProcessing = TRUE,
                     sf::st_collection_extract(., "LINESTRING", warn = FALSE) 
   # WARN:  sf::st_collection_extract(...) can lead to unwished results, see https://github.com/r-spatial/sf/issues/913
   
-  if(return.geom){ result.list$geom_edge <- y.line.inter }
+  if(!is.null(geom.boundary))
+  { 
+    if(!quiet) cat("... intersection with boundary \n")
+    geom.boundary <- geom.boundary %>% dplyr::mutate(ID_BOUNDS = 1:nrow(.)) %>% 
+      dplyr::select(c("ID_BOUNDS", "geometry"))
+    y.line.inter <- sf::st_intersection(x = y.line.inter, y = geom.boundary)
+  } # ## add unique IDs
   
   if(!quiet) cat("... calculate edge length \n")
-  result.list$edge_length <- sf::st_length(y.line.inter) %>% as.numeric(.) %>% sum(., na.rm = TRUE)
+  y.line.inter$L <- sf::st_length(y.line.inter) %>% as.numeric(.)
   
+  if(return.geom){ result.list$geom_edge <- y.line.inter }
+  
+  if(!is.null(geom.boundary))
+  { 
+    result.list$edge_length <- y.line.inter %>% sf::st_drop_geometry(x = .) %>%
+                                                data.table::as.data.table(.) %>%
+                                                .[, list(L = sum(L, na.rm = TRUE)),
+                                                  by = list(ID_BOUNDS)]
+  } else {
+    result.list$edge_length <- data.table(edge_length = y.line.inter$L %>% sum(., na.rm = TRUE))
+    
+  }
+
   # re-order list
   if(return.geom){ result.list <- result.list[rev(names(result.list))]}
   

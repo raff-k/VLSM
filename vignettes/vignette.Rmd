@@ -1,0 +1,247 @@
+---
+title: "VLSM: Vector-based Landscape Metrics"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{VLSM: Vector-based Landscape Metrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  fig.align = "center",
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+# 1 Vignette Info
+
+Most common landscape metrics are calculated on a raster-basis. However, sometimes landscape information come along in vector-formats. For the calculation of landscape metrics, one must perform a vector-to-raster-transformation often resulting in a lost of information. In **VLSM** we implemented the following landscape metrics based on vector data:
+
+*   **Effective Mesh Size** based on [Moser et al. 2007](https://doi.org/10.1007/s10980-006-9023-0)
+*   **Urban Sprawl** based on [Ackermann et al. 2013](https://www.schulthess.com/buchshop/detail/ISBN-9783784340326/Ackermann-Werne-Schweiger-Manue-Sukopp-Ulrich-fuer-Naturschutz-BfN-Bundesam-Editor/Indikatoren-zur-biologischen-Vielfalt?bpmbutton211549=1&bpmtoken=)
+*   **Integration Index** based on [Meinel & Winkler 2002](https://www2.ioer.de/recherche/pdf/2002_meinel_earsel.pdf)
+-   **Shape Indices** based on [Forman & Godron 1986](https://link.springer.com/journal/10980)
+*   **Edge Length** based on [Walz 2013](http://rosdok.uni-rostock.de/file/rosdok_disshab_0000000980/rosdok_derivate_0000005089/Habilitationsschrift_Walz_2013.pdf)
+*   **Shannon's Diversity Index** for landscapes based on [McGarigal et al. 1995](https://www.fs.usda.gov/treesearch/pubs/3064)
+
+In the following, a quick manual on how to use these functions.
+
+# 2 Packages, Data and Software Utilities
+
+As example data for this `vignette` we used the [CORINE Land Cover (CLC) Germany 25 ha](https://www.govdata.de/web/guest/daten/-/details/corine-land-cover-deutschland-25-ha-2018-datensatz) dataset of the year 2012 and 2018. Furthermore, we clipped the data to two districts of the Free State of Thuringia: Jena and Saale-Holzland. As administrative boundaries we used the data of the German Federal Agency for Cartography and Geodesy.
+
+For the geo-computation we highly recommend to use GRASS GIS (> 7.6) via the [rgrass7](https://cran.r-project.org/web/packages/rgrass7/index.html)-package.
+
+Let's load the packages and data:
+```{r}
+library(dplyr)
+
+path.input <- "C:/Users/qo23hel/Desktop/LANDCOVER GERMANY"
+admin.KRS <- sf::st_read(dsn = file.path(path.input, "Admin", "VG250_KRS_J_SHK.shp"))
+
+
+CLC_12 <- sf::st_read(dsn = file.path(path.input, "CLC", "CLC2012", "CLC2012_TH_KRS_dis_2D.shp"))
+CLC_18 <- sf::st_read(dsn = file.path(path.input, "CLC", "CLC2018", "CLC2018_TH_KRS_dis_2D.shp"))
+
+```
+
+# 3 Calculation of Landscape Metrics
+
+## 3.1 Effective Mesh Size
+The calculation of the *effective mesh size* is based on [Moser et al. 2007](https://doi.org/10.1007/s10980-006-9023-0). The indicator gives information on the degree of fragmentation of a landscape. The result can be interpreted as the probability that two randomly chosen points in a region will be connected. By multiplying this probability with the total area of the reporting unit, the result is converted into an areal unit: the effective mesh size. Besides, the indicator is in the meanwhile a well etablished measurement for landscape fragmentation, and also part of the [ESMS Indicator Profile](https://ec.europa.eu/eurostat/en/web/products-datasets/-/T2020_RN110).
+
+Let's calculate the effective mesh size for out two study areas! For the calculation we must define beside the fragmentation geometry (`geom.frag`) also either a boundary geometry (`geom.boundary`) such as administrative boundaries, or we must give the total area via `total.area`.
+
+
+We can calculate the effective mesh size via:
+
+```{r, eval = FALSE}
+# For CLC 2012
+TH12.mesh <- st_mesh(geom.frag = CLC_12 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), geom.boundary = admin.KRS, return.geom = TRUE)
+
+# For CLC 2018
+TH18.mesh <- st_mesh(geom.frag = CLC_18 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), geom.boundary = admin.KRS, return.geom = TRUE)
+```
+
+Let's take a look on the results:
+
+```{r, eval = FALSE}
+data.frame(Name = admin.KRS$GEN,
+           CLC2012_CUT = TH12.mesh$mesh$mEff_CUT,
+           CLC2018_CUT = TH18.mesh$mesh$mEff_CUT,
+           CLC2012_CBC2 = TH12.mesh$mesh$mEff_CBC2,
+           CLC2018_CBC2 = TH18.mesh$mesh$mEff_CBC2)
+```
+We can see, that depending on the method the results can be contrary: While the cutting-out (CUT) procedure shows an increasing landscape fragmentation from 2012 to 2018, the cross-boundary connections (CBC) procedure shows a decreasing landscape fragmentation. So take care and chose an appropriate method for your study design!
+
+
+## 3.2 Urban Sprawl
+
+The *urban sprawl* is calculated according to [Ackermann et al. 2013](https://www.schulthess.com/buchshop/detail/ISBN-9783784340326/Ackermann-Werne-Schweiger-Manue-Sukopp-Ulrich-fuer-Naturschutz-BfN-Bundesam-Editor/Indikatoren-zur-biologischen-Vielfalt?bpmbutton211549=1&bpmtoken=). They defined urban sprawl as degree of disturbance of habitats by human settlements. The indicator `Freiflächeneffizienz` (FFE, engl. ecological efficiency of open space) ranges between 0% for totally spoiled landscapes or 100% for areas without any human footprint.
+
+We can calculate the urban sprawl via:
+
+```{r, eval = FALSE}
+# For CLC 2012
+TH12.urbanSprawl <- st_urban_sprawl(tool = "grass", geom.urban = CLC_12 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), geom.boundary = admin.KRS, return.geom = TRUE)
+
+# For CLC 2018
+TH18.urbanSprawl <- st_urban_sprawl(tool = "grass", geom.urban = CLC_18 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), geom.boundary = admin.KRS, return.geom = TRUE)
+```
+
+Let's take a look on the results:
+
+```{r, eval = FALSE}
+data.frame(Name = admin.KRS$GEN,
+           CLC2012_FFE = TH12.urbanSprawl$FFE$FFE,
+           CLC2018_FFE = TH18.urbanSprawl$FFE$FFE)
+```
+
+We can see that the district of Jena has a higher percentage of urban sprawl (79%) than Saale-Holzland (91%). Moreover, in both districts the urban sprawl is slightly increasing from 2012 to 2018.
+
+Generally, the calculation of _FFE_ is based on grid lines, whose length is transformed (or not) depending on the intersection with human settlements. Lines lying between settlements are more shorten than lines not intersecting any settlements. Lines intersecting e.g. administrative boundaries are also transformed to account for border effects.
+
+```{r}
+# Example plot
+
+```
+
+Take care: The result varies depening on the transformation-function you take and on the mesh sizes you chose. With a higher mesh size it is possible to miss small human settlements.
+
+## 3.3 Integration Index
+The **Integration Index** based on [Meinel & Winkler 2002](https://www2.ioer.de/recherche/pdf/2002_meinel_earsel.pdf) and gives information on the integration of new settlement areas into already existing settlement areas. The index ranges between 0 and 1, and is coarsly categorized as:
+* Ratio of 0: Extension without connection to the existing settlement area (not integrated)
+* Ratio of 0 <= 1/3: Extension with little connection to the existing settlement area (little integrated)
+* Ratio of 1/3 <= 2/3: Rounded off settlement boundaries (well integrated)
+* Ratio of 2/3 <= 1: In-fill development in the inner-city (fully integrated)
+
+
+The index can be calculated by:
+(If there are geometry problems so that shared boundaries are not found, the parameter (e.g.) `dist.new = 0.05` can help to find out of the misery)
+
+```{r, eval = FALSE}
+# For CLC 2018 integration into 2012
+TH18.integration <- st_integration_index(tool = "grass", 
+                                         geom.new = CLC_18 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), 
+                                         geom.old = CLC_12 %>% dplyr::filter(LABEL1 == "Artificial surfaces"),
+                                         geom.boundary = admin.KRS, return.geom = TRUE)
+```
+
+Let's take a look on the results:
+
+```{r}
+# Example plot
+
+```
+
+```{r, eval = FALSE}
+data.frame(Name = admin.KRS$GEN,
+           R = TH18.integration$integration_index$R)
+```
+
+While new settlements build between 2012 and 2018 were well integrated in existing settlements in the district of Jena (0.59), the ratio shows only little integration for Saale-Holzland (0.25). 
+
+
+## 3.4 Shape Indices
+The calculation of the **Shape Indices** is based on [Forman & Godron 1986](https://link.springer.com/journal/10980). The index gives information on the compactness of a polygon in comparison to a circle of the same area. In the context of landscape metrics we often want to know if a land-use class (e.g. urban settlements) is rather compact or frayed. For that we calculate the (area-weighted) mean shape index (short _MSI_). If a polygon's area has the form of a circle, the shape index gets the value `1`. This simply means that the larger the value, the more frayed the surface. 
+
+Let's take a look on the _MSI_ of the urban area of the two districts:
+
+```{r, eval = FALSE}
+# MSI for CLC 2012
+CLC2012_MSI <- st_MSI(x = CLC_12 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), field = "LABEL1", geom.boundary = admin.KRS)
+
+# MSI for CLC 2018
+CLC2018_MSI <- st_MSI(x = CLC_18 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), field = "LABEL1", geom.boundary = admin.KRS)
+
+
+```
+
+
+Let's take a look on the results:
+
+```{r, eval = FALSE}
+data.frame(Name = admin.KRS$GEN,
+           CLC2012_MSI = CLC2012_MSI$MSI$MSI,
+           CLC2012_AWMSI = CLC2012_MSI$MSI$AWMSI,
+           CLC2018_MSI = CLC2018_MSI$MSI$MSI,
+           CLC2018_AWMSI = CLC2018_MSI$MSI$AWMSI)
+```
+
+It seems that the district of Jena is slightly more frayed in 2018 compared to 2012, while Saale-Holzland was getting sliglty more compact during that time.
+
+
+## 3.5 Edge Length
+The importance of *edge length* between land-use classes, e.g. for the calculation of ecotoones, based on [Walz 2013](http://rosdok.uni-rostock.de/file/rosdok_disshab_0000000980/rosdok_derivate_0000005089/Habilitationsschrift_Walz_2013.pdf). The indicator basically gives information on shared edge length between two land-use classes.
+
+Let's calculate the edge length between `agricultural areas` and `forest and semi natural areas`in the districts:
+
+```{r, eval = FALSE}
+# Edge length for CLC 2012
+TH12.EdgeLenght <- st_edge_length(x = CLC_12 %>% dplyr::filter(LABEL1 == "Agricultural areas"), 
+                                  y = CLC_12 %>% dplyr::filter(LABEL1 == "Forest and semi natural areas"), 
+                                  geom.boundary = admin.KRS, return.geom = TRUE)
+
+# Edge length for CLC 2018
+TH18.EdgeLenght <- st_edge_length(x = CLC_18 %>% dplyr::filter(LABEL1 == "Agricultural areas"), 
+                                  y = CLC_18 %>% dplyr::filter(LABEL1 == "Forest and semi natural areas"), 
+                                  geom.boundary = admin.KRS, return.geom = TRUE)
+```
+
+
+Let's take a look on the results:
+
+```{r}
+# Example plot
+
+```
+
+```{r, eval = FALSE}
+data.frame(Name = admin.KRS$GEN,
+           CLC2012_EdgeLength = TH12.EdgeLenght$edge_length$L,
+           CLC2018_EdgeLength = TH18.EdgeLenght$edge_length$L)
+```
+
+It is not surprising that the edge length between `agricultural areas` and `forest and semi natural areas` is higher in the rural and larger district of Saale-Holzland. Regarding the change from 2012 to 2018 the shared border is slightly decreasing in both districts. However, the the index becomes even more powerful by building appropriate ratios as `edge-length to perimeter of class x`.
+
+
+## 3.6 Shannon's Diversity Index
+
+
+
+
+# 4 References
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))

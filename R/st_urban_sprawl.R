@@ -191,7 +191,7 @@ st_urban_sprawl = function(tool = "sf", geom.urban, geom.boundary = NULL, dist =
   if((!is.null(geom.boundary) & !force.extent))
   {
     erase.final <- st_dissolve(x = erase.single[which(erase.single$Type == 2 | erase.single$Type == 3),],
-                               by = list("Type", "ID_FNET", "ID_BNDS"))
+                               by = list("ID_BNDS", "Type", "ID_FNET"))
     
     erase.final <- rbind(erase.final, erase.single[which(erase.single$Type == 1),])
     

@@ -4,8 +4,8 @@
 \alias{st_edge_length}
 \title{Calculate edge length between two geometries}
 \usage{
-st_edge_length(x, y, dist.x = 0, dist.y = 0, do.preProcessing = TRUE,
-  return.geom = FALSE, quiet = TRUE)
+st_edge_length(x, y, dist.x = 0, dist.y = 0, geom.boundary = NULL,
+  do.preProcessing = TRUE, return.geom = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{x}{polygon of class \code{sf} representing the basis geometry}
@@ -15,6 +15,8 @@ st_edge_length(x, y, dist.x = 0, dist.y = 0, do.preProcessing = TRUE,
 \item{dist.x}{buffer distance in mapping units around geometry using \code{sf::st_buffer}. Default: \code{0}}
 
 \item{dist.y}{buffer distance in mapping units around geometry using \code{sf::st_buffer}. Default: \code{0}}
+
+\item{geom.boundary}{polygon of class \code{sf} representing subregions, e.g. administrative boundaries}
 
 \item{do.preProcessing}{If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved to single part feature, and second, splitted to multi-parts}
 

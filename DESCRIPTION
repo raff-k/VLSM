@@ -24,6 +24,7 @@ Imports:
          RSAGA,
          rgrass7,
          sf,
+         stats,
          tools
 Suggests: 
          link2GI,

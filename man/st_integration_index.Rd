@@ -7,7 +7,7 @@
 st_integration_index(tool = "sf", geom.old, geom.new,
   geom.boundary = NULL, tol = 0.1, precision = 0, env.rsaga = NULL,
   snap.rgrass = 1e-05, dist.new = 0, override = TRUE,
-  return.geom = FALSE, quiet = FALSE)
+  return.geom = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{tool}{tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set}
@@ -32,7 +32,7 @@ st_integration_index(tool = "sf", geom.old, geom.new,
 
 \item{return.geom}{If set to \code{TRUE}, intermediate geometries are returned as well. Default: \code{FALSE}}
 
-\item{quiet}{show output on console. Default: \code{FALSE}}
+\item{quiet}{If set to \code{FALSE} actual state is printed to console. Default: \code{TRUE}.}
 }
 \value{
 Vector with integration index (completly integrated: 2/3 < R < 1; good integrated: 1/3 < R < 2/3; low integrated: 0 < R < 1/3; not integrated: 0)
