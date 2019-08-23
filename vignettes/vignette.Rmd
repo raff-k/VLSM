@@ -53,7 +53,7 @@ pacman::p_load(VLSM, dplyr, ggplot2, rgrass7, raster, link2GI, sf)
 # LOAD THE DATA OF THE PACKAGE:
 data(VLSM_data, package = "VLSM")
 
-# ... CORINE Land Cover (CLC) Germany from the year 2012 and 2018 (Jena and Saalze-Holzand)
+# ... CORINE Land Cover (CLC) from the year 2012 and 2018 (Jena and Saalze-Holzand)
 CLC_12 <- VLSM_data$CLC_12
 CLC_18 <- VLSM_data$CLC_18
 
