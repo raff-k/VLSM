@@ -175,6 +175,11 @@ Furthermore, we clipped the data to two districts of the Free State of
 Thuringia: Jena and Saale-Holzland. As administrative boundaries we used
 the data of the German Federal Agency for Cartography and Geodesy.
 
+\textbf{Please note}, that in the CLC-data linear anthropogenic
+structres are underrepresented. This may lead to overoptimistc results
+in the calculations. In addition, we aggregated the CLC-data to the
+coarsest, main land-use-category (`\texttt{LABEL1}).
+
 Let's start by loading the packages and data:
 
 \begin{Shaded}
@@ -269,7 +274,9 @@ Let's calculate the \emph{effective mesh size} for our two districts!
 For the calculation we must define beside a fragmentation geometry
 (\texttt{geom.frag}) also either a boundary geometry
 (\texttt{geom.boundary}) such as administrative boundaries, or we must
-give the total area via \texttt{total.area}.
+give the total area via \texttt{total.area}. The fragmentation geometry
+is the area that remains after excluding artifical surfaces (=
+fragmenting geometry).
 
 We can calculate the \emph{effective mesh size} as following:
 
@@ -277,12 +284,12 @@ We can calculate the \emph{effective mesh size} as following:
 \begin{Highlighting}[]
 \CommentTok{# CLC 2012}
 \NormalTok{TH12.mesh <-}\StringTok{ }\KeywordTok{st_mesh}\NormalTok{(}\DataTypeTok{geom.frag =}\NormalTok{ CLC_}\DecValTok{12} \OperatorTok{%>%}\StringTok{ }
-\StringTok{                                  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(LABEL1 }\OperatorTok{==}\StringTok{ "Artificial surfaces"}\NormalTok{),}
+\StringTok{                                  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(LABEL1 }\OperatorTok{!=}\StringTok{ "Artificial surfaces"}\NormalTok{),}
                      \DataTypeTok{geom.boundary =}\NormalTok{ ADMIN_DIS, }\DataTypeTok{return.geom =} \OtherTok{TRUE}\NormalTok{)}
 
 \CommentTok{# CLC 2018}
 \NormalTok{TH18.mesh <-}\StringTok{ }\KeywordTok{st_mesh}\NormalTok{(}\DataTypeTok{geom.frag =}\NormalTok{ CLC_}\DecValTok{18} \OperatorTok{%>%}\StringTok{ }
-\StringTok{                                  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(LABEL1 }\OperatorTok{==}\StringTok{ "Artificial surfaces"}\NormalTok{),}
+\StringTok{                                  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(LABEL1 }\OperatorTok{!=}\StringTok{ "Artificial surfaces"}\NormalTok{),}
                      \DataTypeTok{geom.boundary =}\NormalTok{ ADMIN_DIS, }\DataTypeTok{return.geom =} \OtherTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -295,17 +302,18 @@ Name & CLC2012\_CUT & CLC2018\_CUT & CLC2012\_CBC2 &
 CLC2018\_CBC2\tabularnewline
 \midrule
 \endhead
-Jena & 814.09006 & 799.63460 & 866.3080 & 851.3873\tabularnewline
-Saale-Holzland-Kreis & 13.70294 & 13.68527 & 21.0954 &
-21.0122\tabularnewline
+Jena & 5456.53 & 5450.26 & 115275.22 & 115664.47\tabularnewline
+Saale-Holzland-Kreis & 72608.95 & 72588.77 & 88024.18 &
+88053.33\tabularnewline
 \bottomrule
 \end{longtable}
 
 Interesting, depending on the measurement the results show a contrary
 trend: While the cutting-out (CUT) procedure shows an increasing
-landscape fragmentation from 2012 to 2018, the cross-boundary
-connections (CBC) procedure shows a decreasing landscape fragmentation.
-So take care and choose the appropriate result for your study design!
+landscape fragmentation from 2012 to 2018 (e.g.~around 6 ha for Jena),
+the cross-boundary connections (CBC) procedure shows a decreasing
+landscape fragmentation (e.g.~around 389 ha for Jena). So take care and
+choose the appropriate result for your study design!
 
 \subsection{3.2 Urban Sprawl}\label{urban-sprawl}
 
@@ -344,8 +352,8 @@ Let's take a look on the results:
 Name & CLC2012\_FFE & CLC2018\_FFE\tabularnewline
 \midrule
 \endhead
-Jena & 79.31653 & 79.14070\tabularnewline
-Saale-Holzland-Kreis & 91.37195 & 91.32509\tabularnewline
+Jena & 79.32 & 79.14\tabularnewline
+Saale-Holzland-Kreis & 91.37 & 91.33\tabularnewline
 \bottomrule
 \end{longtable}
 
@@ -432,8 +440,8 @@ Let's take a look on the results:
 Name & R\tabularnewline
 \midrule
 \endhead
-Jena & 0.5935216\tabularnewline
-Saale-Holzland-Kreis & 0.2532599\tabularnewline
+Jena & 0.59\tabularnewline
+Saale-Holzland-Kreis & 0.25\tabularnewline
 \bottomrule
 \end{longtable}
 
@@ -558,8 +566,8 @@ Let's take a look on the results:
 Name & CLC2012\_Shannon & CLC2018\_Shannon\tabularnewline
 \midrule
 \endhead
-Jena & 1.0910577 & 1.0907722\tabularnewline
-Saale-Holzland-Kreis & 0.8526896 & 0.8530465\tabularnewline
+Jena & 1.09 & 1.09\tabularnewline
+Saale-Holzland-Kreis & 0.85 & 0.85\tabularnewline
 \bottomrule
 \end{longtable}
 
