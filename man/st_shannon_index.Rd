@@ -4,8 +4,8 @@
 \alias{st_shannon_index}
 \title{Calculate the Shannon's Diversity Index}
 \usage{
-st_shannon_index(tool = "sf", x, field, do.preProcessing = TRUE,
-  return.geom = FALSE, quiet = TRUE)
+st_shannon_index(tool = "sf", x, field, geom.boundary = NULL,
+  do.preProcessing = TRUE, return.geom = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{tool}{tool to perform dissolve operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is NOT supported}
@@ -13,6 +13,8 @@ st_shannon_index(tool = "sf", x, field, do.preProcessing = TRUE,
 \item{x}{polygon of class \code{sf}}
 
 \item{field}{field name or table column (\code{character}) on which the shannon index is calculated}
+
+\item{geom.boundary}{polygon of class \code{sf} representing subregions, e.g. administrative boundaries}
 
 \item{do.preProcessing}{If \code{TRUE} (default), the input of \code{geom.frag} is, first, dissolved by field, and second, splitted to multi-parts. By this step it is assured, that polygon connected to each other are summarized}
 

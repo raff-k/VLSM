@@ -15,6 +15,7 @@ License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
+LazyData: true
 Depends: 
          data.table,
          R (>= 3.3)
@@ -31,6 +32,9 @@ Suggests:
          magrittr,
          testthat, 
          knitr,
-         rmarkdown
+         rmarkdown,
+         pacman,
+         raster,
+         ggplot2
 VignetteBuilder: knitr
 
