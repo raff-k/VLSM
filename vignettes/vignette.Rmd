@@ -40,7 +40,7 @@ In the following, a quick manual on how to use these functions.
 
 As example data for this `vignette` we used the [CORINE Land Cover (CLC) Germany 25 ha](https://www.govdata.de/web/guest/daten/-/details/corine-land-cover-deutschland-25-ha-2018-datensatz) dataset of the year 2012 and 2018. Furthermore, we clipped the data to two districts of the Free State of Thuringia: Jena and Saale-Holzland. As administrative boundaries we used the data of the German Federal Agency for Cartography and Geodesy.
 
-**Please note**, that in the CLC-data linear anthropogenic structres are underrepresented. This may lead to overoptimistc results in the calculations. In addition, we aggregated the CLC-data to the coarsest, main land-use-category (``LABEL1`). 
+**Please note**, that in the CLC-data linear anthropogenic structres are underrepresented. This may lead to overoptimistc results in the calculations. In addition, we aggregated the CLC-data to the coarsest, main land-use-category (`LABEL1`). 
 
 Let's start by loading the packages and data:
 
@@ -53,12 +53,10 @@ pacman::p_load(VLSM, dplyr, ggplot2, rgrass7, raster, link2GI, sf)
 # LOAD THE DATA OF THE PACKAGE:
 data(VLSM_data, package = "VLSM")
 
-# ... CORINE Land Cover (CLC) Germany from the year 2012
-# ... Jena and Saalze-Holzand
+# ... CORINE Land Cover (CLC) Germany from the year 2012 (Jena and Saalze-Holzand)
 CLC_12 <- VLSM_data$CLC_12
 
-# ... CORINE Land Cover (CLC) Germany from the year 2012
-# ... Jena and Saalze-Holzand
+# ... CORINE Land Cover (CLC) Germany from the year 2012 (Jena and Saalze-Holzand)
 CLC_18 <- VLSM_data$CLC_18
 
 # ... Administrative boundaries: district of Jena and Saale-Holzland
@@ -94,7 +92,6 @@ ggplot2::ggplot() +
 For "strange" or partly invalid geometries, we highly recommend to use `GRASS GIS`(> 7.6) via the [rgrass7](https://cran.r-project.org/web/packages/rgrass7/index.html)-package for the geo-computations. `GRASS GIS` can be easily initialized via the [link2GI](https://cran.r-project.org/web/packages/link2GI/index.html)-package:
 
 ```{r eval = FALSE, message = FALSE}
-
 # If someone wants to use GRASS GIS, one has to installed it first. 
 # Easiest option is via the OSgeo installer. In this example we use GRASS GIS 7.6 
 # installed on Windows

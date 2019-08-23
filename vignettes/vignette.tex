@@ -178,7 +178,7 @@ the data of the German Federal Agency for Cartography and Geodesy.
 \textbf{Please note}, that in the CLC-data linear anthropogenic
 structres are underrepresented. This may lead to overoptimistc results
 in the calculations. In addition, we aggregated the CLC-data to the
-coarsest, main land-use-category (`\texttt{LABEL1}).
+coarsest, main land-use-category (\texttt{LABEL1}).
 
 Let's start by loading the packages and data:
 
@@ -192,12 +192,10 @@ Let's start by loading the packages and data:
 \CommentTok{# LOAD THE DATA OF THE PACKAGE:}
 \KeywordTok{data}\NormalTok{(VLSM_data, }\DataTypeTok{package =} \StringTok{"VLSM"}\NormalTok{)}
 
-\CommentTok{# ... CORINE Land Cover (CLC) Germany from the year 2012}
-\CommentTok{# ... Jena and Saalze-Holzand}
+\CommentTok{# ... CORINE Land Cover (CLC) Germany from the year 2012 (Jena and Saalze-Holzand)}
 \NormalTok{CLC_}\DecValTok{12}\NormalTok{ <-}\StringTok{ }\NormalTok{VLSM_data}\OperatorTok{$}\NormalTok{CLC_}\DecValTok{12}
 
-\CommentTok{# ... CORINE Land Cover (CLC) Germany from the year 2012}
-\CommentTok{# ... Jena and Saalze-Holzand}
+\CommentTok{# ... CORINE Land Cover (CLC) Germany from the year 2012 (Jena and Saalze-Holzand)}
 \NormalTok{CLC_}\DecValTok{18}\NormalTok{ <-}\StringTok{ }\NormalTok{VLSM_data}\OperatorTok{$}\NormalTok{CLC_}\DecValTok{18}
 
 \CommentTok{# ... Administrative boundaries: district of Jena and Saale-Holzland}
