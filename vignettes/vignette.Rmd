@@ -195,7 +195,7 @@ ggplot2::ggplot() +
 
 ```
 
-Take care: The result varies depending on the transformation-function and on the mesh sizes. With a higher mesh size, it is possible to miss small human settlements resulting in a lower value of *urban sprawl*.
+**Note**: The result varies depending on the transformation-function and on the mesh sizes. With a higher mesh size, it is possible to miss small human settlements resulting in a lower value of *urban sprawl*.
 
 ## 3.3 Integration Index
 The *Integration Index* is based on [Meinel & Winkler (2002)](https://www2.ioer.de/recherche/pdf/2002_meinel_earsel.pdf) and gives information on the integration of new settlement areas into already existing settlement areas. The index ranges between 0 and 1, and is coarsly categorized as:
@@ -340,7 +340,7 @@ knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
 ```
 
 
-The district of Jena has a higher *Shannon Diversity Index* (1.1) than Saale-Holzland (0.9), and the index is only slightly changing from 2012 to 2018. The higher diversity for Jena is quite surprising, and appears even contradictory in an ecological sense.
+The district of Jena has a higher *Shannon Diversity Index* (1.1) than Saale-Holzland (0.9), and the index is not changing from 2012 to 2018. The higher diversity for Jena is quite surprising, and appears even contradictory in an ecological sense.
 This example unveils directly the weak spots of the index: First, there is no weighting for ecological valuable land-use classes. For example, an increasing amount of urban area resulting in a more equitable proportional distribution of area could increase the index, which, ecologically speaking, is nonsense. And second, it does not matter if the surfaces are homogeneous or mosaic-like distributed, the index values stays the same. 
 
 
