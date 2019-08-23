@@ -40,6 +40,8 @@ In the following, a quick manual on how to use these functions.
 
 As example data for this `vignette` we used the [CORINE Land Cover (CLC) Germany 25 ha](https://www.govdata.de/web/guest/daten/-/details/corine-land-cover-deutschland-25-ha-2018-datensatz) dataset of the year 2012 and 2018. Furthermore, we clipped the data to two districts of the Free State of Thuringia: Jena and Saale-Holzland. As administrative boundaries we used the data of the German Federal Agency for Cartography and Geodesy.
 
+**Please note**, that in the CLC-data linear anthropogenic structres are underrepresented. This may lead to overoptimistc results in the calculations. In addition, we aggregated the CLC-data to the coarsest, main land-use-category (``LABEL1`). 
+
 Let's start by loading the packages and data:
 
 ```{r message = FALSE, warning = FALSE}
@@ -115,6 +117,7 @@ GRASS_INIT <- link2GI::linkGRASS7(x = r.GRASS, default_GRASS7 = my_default_GRASS
 The calculation of the *effective mesh size* is based on [Moser et al. (2007)](https://doi.org/10.1007/s10980-006-9023-0). The indicator gives information on the degree of fragmentation of a landscape. The result can be interpreted as the probability that two randomly chosen points in a region will be connected. By multiplying this probability with the total area of the reporting unit, the result is converted into an areal unit: the *effective mesh size* [ha]. Besides, the indicator is in the meanwhile a well etablished measurement for landscape fragmentation, and also part of the [ESMS Indicator Profile](https://ec.europa.eu/eurostat/en/web/products-datasets/-/T2020_RN110).
 
 Let's calculate the *effective mesh size* for our two districts! For the calculation we must define beside a fragmentation geometry (`geom.frag`) also either a boundary geometry (`geom.boundary`) such as administrative boundaries, or we must give the total area via `total.area`.
+The fragmentation geometry is the area that remains after excluding artifical surfaces (= fragmenting geometry).
 
 
 We can calculate the *effective mesh size* as following:
@@ -122,12 +125,12 @@ We can calculate the *effective mesh size* as following:
 ```{r, eval = FALSE, message = FALSE}
 # CLC 2012
 TH12.mesh <- st_mesh(geom.frag = CLC_12 %>% 
-                                  dplyr::filter(LABEL1 == "Artificial surfaces"),
+                                  dplyr::filter(LABEL1 != "Artificial surfaces"),
                      geom.boundary = ADMIN_DIS, return.geom = TRUE)
 
 # CLC 2018
 TH18.mesh <- st_mesh(geom.frag = CLC_18 %>% 
-                                  dplyr::filter(LABEL1 == "Artificial surfaces"),
+                                  dplyr::filter(LABEL1 != "Artificial surfaces"),
                      geom.boundary = ADMIN_DIS, return.geom = TRUE)
 ```
 
@@ -135,13 +138,13 @@ Let's take a look on the results:
 
 ```{r, echo = FALSE, results = 'MESH', eval = TRUE}
 knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
-           CLC2012_CUT = VLSM_data_result$TH12_mesh$mesh$mEff_CUT,
-           CLC2018_CUT = VLSM_data_result$TH18_mesh$mesh$mEff_CUT,
-           CLC2012_CBC2 = VLSM_data_result$TH12_mesh$mesh$mEff_CBC2,
-           CLC2018_CBC2 = VLSM_data_result$TH18_mesh$mesh$mEff_CBC2))
+           CLC2012_CUT = VLSM_data_result$TH12_mesh$mesh$mEff_CUT %>% round(., 2),
+           CLC2018_CUT = VLSM_data_result$TH18_mesh$mesh$mEff_CUT %>% round(., 2),
+           CLC2012_CBC2 = VLSM_data_result$TH12_mesh$mesh$mEff_CBC2 %>% round(., 2),
+           CLC2018_CBC2 = VLSM_data_result$TH18_mesh$mesh$mEff_CBC2 %>% round(., 2)))
 ```
 
-Interesting, depending on the measurement the results show a contrary trend: While the cutting-out (CUT) procedure shows an increasing landscape fragmentation from 2012 to 2018, the cross-boundary connections (CBC) procedure shows a decreasing landscape fragmentation. So take care and choose the appropriate result for your study design!
+Interesting, depending on the measurement the results show a contrary trend: While the cutting-out (CUT) procedure shows an increasing landscape fragmentation from 2012 to 2018 (e.g. around 6 ha for Jena), the cross-boundary connections (CBC) procedure shows a decreasing landscape fragmentation (e.g. around 389 ha for Jena). So take care and choose the appropriate result for your study design!
 
 
 ## 3.2 Urban Sprawl
@@ -169,8 +172,8 @@ Let's take a look on the results:
 
 ```{r, echo = FALSE, results = 'FFE', eval = TRUE}
 knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
-           CLC2012_FFE = VLSM_data_result$TH12_urbanSprawl$FFE$FFE,
-           CLC2018_FFE = VLSM_data_result$TH18_urbanSprawl$FFE$FFE))
+           CLC2012_FFE = VLSM_data_result$TH12_urbanSprawl$FFE$FFE %>% round(., 2),
+           CLC2018_FFE = VLSM_data_result$TH18_urbanSprawl$FFE$FFE %>% round(., 2)))
 ```
 
 The district of Jena has a higher percentage of *urban sprawl* (79%) as Saale-Holzland (91%). Moreover, in both districts the *urban sprawl* is slightly increasing from 2012 to 2018.
@@ -245,7 +248,7 @@ ggplot2::ggplot() +
 
 ```{r, echo = FALSE, results = 'IntInd', eval = TRUE}
 knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
-           R = VLSM_data_result$TH18_integration$integration_index$R))
+           R = VLSM_data_result$TH18_integration$integration_index$R %>% round(., 2)))
 ```
 
 While new settlement areas built between 2012 and 2018 were well integrated in already existing settlements in the district of Jena (0.59), the ratio shows only little integration for Saale-Holzland (0.25).
@@ -273,10 +276,10 @@ Let's take a look on the results:
 
 ```{r, echo = FALSE, results = 'MSI', eval = FALSE}
 knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
-           CLC2012_MSI = VLSM_data_result$CLC2012_MSI$MSI$MSI,
-           CLC2012_AWMSI = VLSM_data_result$CLC2012_MSI$MSI$AWMSI,
-           CLC2018_MSI = VLSM_data_result$CLC2018_MSI$MSI$MSI,
-           CLC2018_AWMSI = VLSM_data_result$CLC2018_MSI$MSI$AWMSI))
+           CLC2012_MSI = VLSM_data_result$CLC2012_MSI$MSI$MSI %>% round(., 2),
+           CLC2012_AWMSI = VLSM_data_result$CLC2012_MSI$MSI$AWMSI %>% round(., 2),
+           CLC2018_MSI = VLSM_data_result$CLC2018_MSI$MSI$MSI %>% round(., 2),
+           CLC2018_AWMSI = VLSM_data_result$CLC2018_MSI$MSI$AWMSI %>% round(., 2)))
 ```
 
 It seems that the district of Jena is slightly more frayed in 2018 (*MSI* of 2.13) compared to 2012 (*MSI* of 2.11), while Saale-Holzland was getting sliglty more compact (1.99 to 1.97) during that time.
@@ -308,8 +311,8 @@ Now, we have a look on it:
 
 ```{r, echo = FALSE, results = 'EDGE'}
 knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
-           CLC2012_EdgeLength = VLSM_data_result$TH12_EdgeLength$edge_length$L,
-           CLC2018_EdgeLength = VLSM_data_result$TH18_EdgeLength$edge_length$L))
+           CLC2012_EdgeLength = VLSM_data_result$TH12_EdgeLength$edge_length$L %>% round(., 2),
+           CLC2018_EdgeLength = VLSM_data_result$TH18_EdgeLength$edge_length$L %>% round(., 2)))
 ```
 
 It is not surprising that the *edge length* [m] between `agricultural areas` and `forest and semi natural areas` is higher in the rural and larger district of Saale-Holzland. Regarding the change from 2012 to 2018 the *edge length* is slightly decreasing in both districts. However, the index becomes even more powerful by building appropriate ratios as `edge-length to perimeter of class x`.
@@ -337,8 +340,8 @@ Let's take a look on the results:
 
 ```{r, echo = FALSE, results = 'SHANNON'}
 knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
-           CLC2012_Shannon = VLSM_data_result$TH12_Shannon$SHDI$SHDI,
-           CLC2018_Shannon = VLSM_data_result$TH18_Shannon$SHDI$SHDI))
+           CLC2012_Shannon = VLSM_data_result$TH12_Shannon$SHDI$SHDI %>% round(., 2),
+           CLC2018_Shannon = VLSM_data_result$TH18_Shannon$SHDI$SHDI %>% round(., 2)))
 ```
 
 
