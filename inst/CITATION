@@ -1,0 +1,20 @@
+citHeader("To cite package 'VLSM' in publications use:")
+citEntry(entry = "Article",
+	title = "...",
+	author = personList(as.person("Raphael Knevels"),
+	                    as.person("..."),
+	                    as.person("...")),
+	journal = "...",
+	year = "20XX",
+	volume = "X",
+	issue = "X",
+	pages = "XXX--XXX",
+	note = "Accepted for publication on 20XX-XX-XX",
+	url = "https://LINK.pdf",
+	header = "To cite the 'VLSM' package use:",
+	textVersion = 
+	  paste("Knevels, R.,..., .., and .. .... 20XX.",
+		      "VLSM: Vector-based Landscape Metrics.",
+		      "... X, X, ...-....",
+		      "https://LINK.pdf.")
+)
