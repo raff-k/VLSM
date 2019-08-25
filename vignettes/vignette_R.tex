@@ -121,7 +121,7 @@
     \preauthor{}\postauthor{}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-08-23}
+    \date{2019-08-24}
 
 
 \begin{document}
@@ -163,7 +163,9 @@ metrics based on vector data:
   (1995)}
 \end{itemize}
 
-In the following, a quick manual on how to use these functions.
+In the following, a quick manual on how to use these functions in
+\texttt{R}. If you want to use these functions via \texttt{QGIS}, please
+refer to \href{}{here}.
 
 \section{2 Packages, Data and Software
 Utilities}\label{packages-data-and-software-utilities}
@@ -186,7 +188,7 @@ Let's start by loading the packages and data:
 \begin{Highlighting}[]
 \CommentTok{# LOAD REQUIRED LIBRARIES}
 \ControlFlowTok{if}\NormalTok{(}\OperatorTok{!}\KeywordTok{require}\NormalTok{(}\StringTok{"pacman"}\NormalTok{)) }\KeywordTok{install.packages}\NormalTok{(}\StringTok{"pacman"}\NormalTok{)}
-\NormalTok{pacman}\OperatorTok{::}\KeywordTok{p_load}\NormalTok{(VLSM, dplyr, ggplot2, rgrass7, raster, link2GI, sf)}
+\NormalTok{pacman}\OperatorTok{::}\KeywordTok{p_load}\NormalTok{(VLSM, dplyr, ggplot2, gridExtra, rgrass7, raster, link2GI, sf)}
 
 
 \CommentTok{# LOAD THE DATA OF THE PACKAGE:}
@@ -215,7 +217,7 @@ And now, let's take a look on the study area:
 
 \begin{figure}[!h]
 
-{\centering \includegraphics{vignette_files/figure-latex/unnamed-chunk-3-1} 
+{\centering \includegraphics{vignette_R_files/figure-latex/unnamed-chunk-3-1} 
 
 }
 
@@ -365,7 +367,7 @@ also transformed to account for border effects.
 
 \begin{figure}[!h]
 
-{\centering \includegraphics{vignette_files/figure-latex/unnamed-chunk-9-1} 
+{\centering \includegraphics{vignette_R_files/figure-latex/unnamed-chunk-9-1} 
 
 }
 
@@ -423,7 +425,7 @@ Let's take a look on the results:
 
 \begin{figure}[!h]
 
-{\centering \includegraphics{vignette_files/figure-latex/unnamed-chunk-11-1} 
+{\centering \includegraphics{vignette_R_files/figure-latex/unnamed-chunk-11-1} 
 
 }
 
@@ -474,6 +476,17 @@ districts:
 \end{Shaded}
 
 Let's take a look on the results:
+
+\begin{longtable}[]{@{}lrrrr@{}}
+\toprule
+Name & CLC2012\_MSI & CLC2012\_AWMSI & CLC2018\_MSI &
+CLC2018\_AWMSI\tabularnewline
+\midrule
+\endhead
+Jena & 2.11 & 4.77 & 2.13 & 4.92\tabularnewline
+Saale-Holzland-Kreis & 1.99 & 2.60 & 1.97 & 2.58\tabularnewline
+\bottomrule
+\end{longtable}
 
 It seems that the district of Jena is slightly more frayed in 2018
 (\emph{MSI} of 2.13) compared to 2012 (\emph{MSI} of 2.11), while

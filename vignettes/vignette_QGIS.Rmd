@@ -1,0 +1,396 @@
+---
+title: "VLSM: Vector-based Landscape Metrics in QGIS"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    keep_tex: true
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{VLSM: Vector-based Landscape Metrics}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  fig.align = "center",
+  collapse = TRUE,
+  comment = "#>"
+)
+knitr::opts_chunk$set(fig.pos = '!h')
+```
+
+
+# 1 Vignette Info
+
+Most common landscape metrics are calculated on a raster-basis. However, sometimes landscape information come along in vector-formats. For the calculation of landscape metrics, one must perform a vector-to-raster-transformation often resulting in a lost of information. In **VLSM** we implemented the following landscape metrics based on vector data:
+
+*   **Effective Mesh Size** based on [Moser et al. (2007)](https://doi.org/10.1007/s10980-006-9023-0)
+*   **Urban Sprawl** based on [Ackermann et al. (2013)](https://www.schulthess.com/buchshop/detail/ISBN-9783784340326/Ackermann-Werne-Schweiger-Manue-Sukopp-Ulrich-fuer-Naturschutz-BfN-Bundesam-Editor/Indikatoren-zur-biologischen-Vielfalt?bpmbutton211549=1&bpmtoken=)
+*   **Integration Index** based on [Meinel & Winkler (2002)](https://www2.ioer.de/recherche/pdf/2002_meinel_earsel.pdf)
+*   **Shape Indices** based on [Forman & Godron (1986)](https://link.springer.com/journal/10980)
+*   **Edge Length** based on [Walz (2013)](http://rosdok.uni-rostock.de/file/rosdok_disshab_0000000980/rosdok_derivate_0000005089/Habilitationsschrift_Walz_2013.pdf)
+*   **Shannon's Diversity Index** for landscapes based on [McGarigal et al. (1995)](https://www.fs.usda.gov/treesearch/pubs/3064)
+
+In the following, a quick manual on how to use these functions in `QGIS`. If you want to use these functions via `R`, please refer to [here](https://github.com/raff-k/VLSM/blob/master/vignettes/vignette.pdf).
+
+# 2 Packages, Data and Software Utilities
+
+As example data for this `vignette` we used the [CORINE Land Cover (CLC) Germany 25 ha](https://www.govdata.de/web/guest/daten/-/details/corine-land-cover-deutschland-25-ha-2018-datensatz) dataset of the year 2012 and 2018. Furthermore, we clipped the data to two districts of the Free State of Thuringia: Jena and Saale-Holzland. As administrative boundaries we used the data of the German Federal Agency for Cartography and Geodesy.
+
+**Please note**, that in the CLC-data linear anthropogenic structres are underrepresented. This may lead to overoptimistc results in the calculations. In addition, we aggregated the CLC-data to the coarsest, main land-use-category (`LABEL1`). 
+
+Let's start by loading the packages and data:
+
+```{r message = FALSE, warning = FALSE}
+# LOAD REQUIRED LIBRARIES
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(VLSM, dplyr, ggplot2, gridExtra, rgrass7, raster, link2GI, sf)
+
+
+# LOAD THE DATA OF THE PACKAGE:
+data(VLSM_data, package = "VLSM")
+
+# ... CORINE Land Cover (CLC) from the year 2012 and 2018 (Jena and Saalze-Holzand)
+CLC_12 <- VLSM_data$CLC_12
+CLC_18 <- VLSM_data$CLC_18
+
+# ... Administrative boundaries: district of Jena and Saale-Holzland
+ADMIN_DIS <- VLSM_data$ADMIN_DIS 
+
+ # ... a quick lock on the CLC-columns and data
+CLC_12 %>% colnames(.)
+
+# ... shows that the land-use classes can be found in the field "LABEL1"
+CLC_12$LABEL1 %>% unique(.)
+```
+
+
+
+```{r, echo = FALSE}
+# LOAD THE RESULT DATA OF THE PACKAGE:
+data(VLSM_data_result, package = "VLSM")
+```
+
+And now, let's take a look on the study area:
+
+```{r, echo = FALSE, fig.show='Overview', fig.cap = "Overview of study area."}
+bbox.CLC <- CLC_12 %>% sf::st_transform(x =., crs = 4326) %>% sf::st_bbox() # 3857 
+n <- 4
+
+plot.clc12 <- ggplot2::ggplot() + 
+  ggplot2::geom_sf(data = CLC_12, aes(fill = LABEL1), colour = NA) + 
+  ggplot2::scale_fill_manual(name = "", values = c("#cd7c08", "#d40a42", "#097a1d")) +
+  ggplot2::xlab("Longitude") + ggplot2::ylab("Latitude") + ggplot2::ggtitle("CLC-2012") + 
+  ggplot2::scale_x_continuous(breaks =  seq(bbox.CLC[1], bbox.CLC[3], length.out = n) %>% round(., 2)) + 
+  ggplot2::scale_y_continuous(breaks = seq(bbox.CLC[2], bbox.CLC[4], length.out = n) %>% round(., 2)) + 
+  ggplot2::geom_sf(data = ADMIN_DIS, fill = NA, lwd = 1.2, colour = "black") + 
+  ggplot2::geom_sf_text(data = ADMIN_DIS, aes(label = GEN), colour = "white", size = 3.6) + # 3.6
+  ggplot2::theme_bw() + 
+  ggplot2::theme(legend.position = "bottom")
+
+plot.clc12
+
+# plot.clc18 <- ggplot2::ggplot() +
+#   ggplot2::geom_sf(data = CLC_18, aes(fill = LABEL1), colour = NA) +
+#   ggplot2::scale_fill_manual(name = "", values = c("#cd7c08", "#d40a42", "#097a1d")) +
+#   ggplot2::xlab("Longitude") + ggplot2::ylab("Latitude") + ggplot2::ggtitle("CLC-2018") +
+#   ggplot2::scale_x_continuous(breaks =  seq(bbox.CLC[1], bbox.CLC[3], length.out = n) %>% round(., 2)) +
+#   ggplot2::scale_y_continuous(breaks = seq(bbox.CLC[2], bbox.CLC[4], length.out = n) %>% round(., 2)) +
+#   ggplot2::geom_sf(data = ADMIN_DIS, fill = NA, lwd = 1.2, colour = "black") +
+#   ggplot2::geom_sf_text(data = ADMIN_DIS, aes(label = GEN), colour = "white", size = 2.5) +
+#   ggplot2::theme_bw() +
+#   ggplot2::theme(legend.position = "bottom",
+#                  plot.margin = unit(c(5,5,5,5), "mm"))
+# 
+# g_legend <- function(a.gplot){
+#   tmp <- ggplot_gtable(ggplot_build(a.gplot))
+#   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+#   legend <- tmp$grobs[[leg]]
+#   return(legend)
+# }
+# 
+# mylegend <- g_legend(plot.clc12)
+# 
+# gridExtra::grid.arrange(gridExtra::arrangeGrob(plot.clc12 + theme(legend.position="none"),
+#                                                plot.clc18 + theme(legend.position="none"),
+#                                                mylegend),
+#                          nrow=3, ncol = 1, heights = c(100, 100, 1))
+
+
+```
+
+For "strange" or partly invalid geometries, we highly recommend to use `GRASS GIS`(> 7.6) via the [rgrass7](https://cran.r-project.org/web/packages/rgrass7/index.html)-package for the geo-computations. `GRASS GIS` can be easily initialized via the [link2GI](https://cran.r-project.org/web/packages/link2GI/index.html)-package:
+
+```{r eval = FALSE, message = FALSE}
+# If someone wants to use GRASS GIS, one has to installed it first. 
+# Easiest option is via the OSgeo installer. In this example we use GRASS GIS 7.6 
+# installed on Windows
+
+# ... define the installation path (here Windows)
+my_default_GRASS7 <- c("C:/OSGeo4W64/","grass76","osgeo4W")
+
+# ... define a raster for a GRASS GIS region using 
+#     the administrative boundaries as bounding box
+r.GRASS <- raster::extent(ADMIN_DIS) %>% 
+           raster(., crs = raster::crs(ADMIN_DIS))
+
+# ... initialisation of GRASS GIS "on the fly"
+GRASS_INIT <- link2GI::linkGRASS7(x = r.GRASS, default_GRASS7 = my_default_GRASS7)
+```
+
+# 3 Calculation of Landscape Metrics
+
+## 3.1 Effective Mesh Size
+The calculation of the *effective mesh size* is based on [Moser et al. (2007)](https://doi.org/10.1007/s10980-006-9023-0). The indicator gives information on the degree of fragmentation of a landscape. The result can be interpreted as the probability that two randomly chosen points in a region will be connected. By multiplying this probability with the total area of the reporting unit, the result is converted into an areal unit: the *effective mesh size* [ha]. Besides, the indicator is in the meanwhile a well etablished measurement for landscape fragmentation, and also part of the [ESMS Indicator Profile](https://ec.europa.eu/eurostat/en/web/products-datasets/-/T2020_RN110).
+
+Let's calculate the *effective mesh size* for our two districts! For the calculation we must define beside a fragmentation geometry (`geom.frag`) also either a boundary geometry (`geom.boundary`) such as administrative boundaries, or we must give the total area via `total.area`.
+The fragmentation geometry is the area that remains after excluding artifical surfaces (= fragmenting geometry).
+
+
+We can calculate the *effective mesh size* as following:
+
+```{r, eval = FALSE, message = FALSE}
+# CLC 2012
+TH12.mesh <- st_mesh(geom.frag = CLC_12 %>% 
+                                  dplyr::filter(LABEL1 != "Artificial surfaces"),
+                     geom.boundary = ADMIN_DIS, return.geom = TRUE)
+
+# CLC 2018
+TH18.mesh <- st_mesh(geom.frag = CLC_18 %>% 
+                                  dplyr::filter(LABEL1 != "Artificial surfaces"),
+                     geom.boundary = ADMIN_DIS, return.geom = TRUE)
+```
+
+Let's take a look on the results:
+
+```{r, echo = FALSE, results = 'MESH', eval = TRUE}
+knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
+           CLC2012_CUT = VLSM_data_result$TH12_mesh$mesh$mEff_CUT %>% round(., 2),
+           CLC2018_CUT = VLSM_data_result$TH18_mesh$mesh$mEff_CUT %>% round(., 2),
+           CLC2012_CBC2 = VLSM_data_result$TH12_mesh$mesh$mEff_CBC2 %>% round(., 2),
+           CLC2018_CBC2 = VLSM_data_result$TH18_mesh$mesh$mEff_CBC2 %>% round(., 2)))
+```
+
+Interesting, depending on the measurement the results show a contrary trend: While the cutting-out (CUT) procedure shows an increasing landscape fragmentation from 2012 to 2018 (e.g. around 6 ha for Jena), the cross-boundary connections (CBC) procedure shows a decreasing landscape fragmentation (e.g. around 389 ha for Jena). So take care and choose the appropriate result for your study design!
+
+
+## 3.2 Urban Sprawl
+
+The *urban sprawl* is defined and calculated according to [Ackermann et al. (2013)](https://www.schulthess.com/buchshop/detail/ISBN-9783784340326/Ackermann-Werne-Schweiger-Manue-Sukopp-Ulrich-fuer-Naturschutz-BfN-Bundesam-Editor/Indikatoren-zur-biologischen-Vielfalt?bpmbutton211549=1&bpmtoken=). They defined *urban sprawl* as degree of habitat disturbance  by human settlements. The developed so-called *Freiflächeneffizienz* (FFE, engl. ecological efficiency of open space) ranges between 0%, for totally spoiled landscapes, and 100%, for areas without any human footprint.
+
+Since the calculation of the *urban sprawl* needs an _erase_-operation, we will use `GRASS GIS` this time.
+Let's start the tool:
+
+```{r, eval = FALSE, message = FALSE, warning = FALSE}
+# For CLC 2012
+TH12.urbanSprawl <- st_urban_sprawl(tool = "grass", 
+                                    geom.urban = CLC_12 %>% 
+                                     dplyr::filter(LABEL1 == "Artificial surfaces"),
+                                    geom.boundary = ADMIN_DIS, return.geom = TRUE)
+
+# For CLC 2018
+TH18.urbanSprawl <- st_urban_sprawl(tool = "grass", 
+                                    geom.urban = CLC_18 %>% 
+                                     dplyr::filter(LABEL1 == "Artificial surfaces"),
+                                    geom.boundary = ADMIN_DIS, return.geom = TRUE)
+```
+
+Let's take a look on the results:
+
+```{r, echo = FALSE, results = 'FFE', eval = TRUE}
+knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
+           CLC2012_FFE = VLSM_data_result$TH12_urbanSprawl$FFE$FFE %>% round(., 2),
+           CLC2018_FFE = VLSM_data_result$TH18_urbanSprawl$FFE$FFE %>% round(., 2)))
+```
+
+The district of Jena has a higher percentage of *urban sprawl* (79%) as Saale-Holzland (91%). Moreover, in both districts the *urban sprawl* is slightly increasing from 2012 to 2018.
+
+Generally, the calculation of *urban sprawl* is based on grid lines (fishnet), whose length is transformed (or not) depending on the intersection with human settlements. Lines between settlements (red) are more shorten than lines not intersecting any settlements (blue). Lines intersecting settlements and e.g. administrative boundaries (green) are also transformed to account for border effects.
+
+```{r, warning = FALSE, echo = FALSE, fig.show = 'FFE', fig.cap = "Urban sprawl of Jena."}
+ggplot2::ggplot() + 
+  ggplot2::geom_sf(data = VLSM_data_result$CLC_12_J %>% 
+                     dplyr::filter(LABEL1 == "Artificial surfaces"),
+                   colour = "darkgrey", fill = "lightgrey") + 
+  ggplot2::geom_sf(data = VLSM_data_result$TH12_urbanSprawl$geom %>% dplyr::filter(ID_BNDS == 1),
+                   aes(colour = as.factor(Type), fill = as.factor(Type)),
+                   lwd = 0.3) + 
+  ggplot2::scale_fill_manual(name = "", values = c("red", "blue", "green"), 
+                             label = c("settlement-settlement", "border-border", "settlement-border")) +
+  ggplot2::scale_colour_manual(name = "", values = c("red", "blue", "green"),
+                               label = c("settlement-settlement", "border-border", "settlement-border")) +
+  ggplot2::xlab("Longitude") + ggplot2::ylab("Latitude") + ggplot2::ggtitle("CLC-2012") + 
+  ggplot2::geom_sf(data = ADMIN_DIS %>% dplyr::filter(GEN == "Jena"), fill = NA, lwd = 1.2, colour = "black") + 
+  ggplot2::geom_sf_text(data = ADMIN_DIS %>% dplyr::filter(GEN == "Jena"), aes(label = GEN), colour = "white", size = 5) + 
+  ggplot2::theme_bw() + 
+  theme(legend.position = "bottom")
+
+```
+
+**Note**: The result varies depending on the transformation-function and on the mesh sizes. With a higher mesh size, it is possible to miss small human settlements resulting in a lower value of *urban sprawl*.
+
+## 3.3 Integration Index
+The *Integration Index* is based on [Meinel & Winkler (2002)](https://www2.ioer.de/recherche/pdf/2002_meinel_earsel.pdf) and gives information on the integration of new settlement areas into already existing settlement areas. The index ranges between 0 and 1, and is coarsly categorized as:
+
+* Ratio of 0: Extension without connection to the existing settlement area (not integrated)
+* Ratio of 0 <= 1/3: Extension with little connection to the existing settlement area (little integrated)
+* Ratio of 1/3 <= 2/3: Rounded off settlement boundaries (well integrated)
+* Ratio of 2/3 <= 1: In-fill development in the inner-city (fully integrated)
+
+
+If there are geometry problems in the sense that shared boundaries are not found, the parameter `dist.new` (e.g. `dist.new = 0.05`) can help to find out of the misery. Again, to use `GRASS GIS` for processing is recommended but not necessairy. To get the *integration index* execute:
+
+
+```{r, eval = FALSE, message = FALSE, warning = FALSE}
+# For CLC 2018 integration into 2012
+TH18.integration <- st_integration_index(tool = "grass", 
+                        geom.new = CLC_18 %>% 
+                                    dplyr::filter(LABEL1 == "Artificial surfaces"), 
+                        geom.old = CLC_12 %>% 
+                                    dplyr::filter(LABEL1 == "Artificial surfaces"),
+                        geom.boundary = ADMIN_DIS, return.geom = TRUE)
+```
+
+Let's take a look on the results:
+
+```{r, warning = FALSE, echo = FALSE, fig.show = 'IntInd', fig.cap = "Integration Index: Shared boundary between old and new settlement."}
+
+ggplot2::ggplot() + 
+  ggplot2::geom_sf(data = VLSM_data_result$TH18_integration$new_area, 
+                   aes(fill = "new settlement"), colour = NA) + 
+  ggplot2::geom_sf(data = CLC_12 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), 
+                   aes(fill = "old settlement"), colour = NA) +
+  ggplot2::geom_sf(data = VLSM_data_result$TH18_integration$unique_border, 
+                   aes(colour = "shared boundary"), fill = "yellow", lwd = 1.6) +
+  ggplot2::scale_fill_manual(name = "",  values = c("blue", "red", "yellow")) + 
+  ggplot2::scale_colour_manual(name = "",  values = c("yellow")) + 
+  ggplot2::xlab("Longitude") + ggplot2::ylab("Latitude") + ggplot2::ggtitle("CLC-2012-2018") + 
+  ggplot2::coord_sf(xlim = c(VLSM_data_result$plot_limit[1]-600,  VLSM_data_result$plot_limit[3]+600), 
+                    ylim = c(VLSM_data_result$plot_limit[2]-600, VLSM_data_result$plot_limit[4]+600)) +
+  ggplot2::theme_bw() + 
+  ggplot2::theme(legend.position = "bottom")
+
+```
+
+
+```{r, echo = FALSE, results = 'IntInd', eval = TRUE}
+knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
+           R = VLSM_data_result$TH18_integration$integration_index$R %>% round(., 2)))
+```
+
+While new settlement areas built between 2012 and 2018 were well integrated in already existing settlements in the district of Jena (0.59), the ratio shows only little integration for Saale-Holzland (0.25).
+
+
+## 3.4 Shape Indices
+The calculation of the *Shape Indices* is based on [Forman & Godron (1986)](https://link.springer.com/journal/10980). The index gives information on the compactness of a polygon in comparison to a circle of the same area. In the context of landscape metrics we often want to know if a land-use class (e.g. urban settlements) is rather compact or frayed. For that we calculate the (area-weighted) mean shape index (short _MSI_). If a polygon's area has the form of a circle, the shape index gets the value `1`. This simply means that the larger the value, the more frayed the surface. 
+
+Let's take a look on the _MSI_ of the urban area of the two districts:
+
+```{r, eval = FALSE, warning = FALSE}
+# MSI for CLC 2012
+CLC2012.MSI <- st_MSI(x = CLC_12 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), 
+                      field = "LABEL1", geom.boundary = ADMIN_DIS)
+
+# MSI for CLC 2018
+CLC2018.MSI <- st_MSI(x = CLC_18 %>% dplyr::filter(LABEL1 == "Artificial surfaces"), 
+                      field = "LABEL1", geom.boundary = ADMIN_DIS)
+
+
+```
+
+
+Let's take a look on the results:
+
+```{r, echo = FALSE, results = 'MSI'}
+knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
+           CLC2012_MSI = VLSM_data_result$CLC2012_MSI$MSI$MSI %>% round(., 2),
+           CLC2012_AWMSI = VLSM_data_result$CLC2012_MSI$MSI$AWMSI %>% round(., 2),
+           CLC2018_MSI = VLSM_data_result$CLC2018_MSI$MSI$MSI %>% round(., 2),
+           CLC2018_AWMSI = VLSM_data_result$CLC2018_MSI$MSI$AWMSI %>% round(., 2)))
+```
+
+It seems that the district of Jena is slightly more frayed in 2018 (*MSI* of 2.13) compared to 2012 (*MSI* of 2.11), while Saale-Holzland was getting sliglty more compact (1.99 to 1.97) during that time.
+
+
+## 3.5 Edge Length
+The importance of *edge length* between land-use classes, e.g. for the calculation of ecotones, is based on [Walz (2013)](http://rosdok.uni-rostock.de/file/rosdok_disshab_0000000980/rosdok_derivate_0000005089/Habilitationsschrift_Walz_2013.pdf). Basically, the index gives information on shared edge length between two land-use classes.
+
+Let's calculate the edge length between `agricultural areas` and `forest and semi natural areas` in the districts:
+
+```{r, eval = FALSE, warning = FALSE}
+# Edge length for CLC 2012
+TH12.EdgeLength <- st_edge_length(x = CLC_12 %>% 
+                                       dplyr::filter(LABEL1 == "Agricultural areas"), 
+                                  y = CLC_12 %>% 
+                                       dplyr::filter(LABEL1 == "Forest and semi natural areas"), 
+                                  geom.boundary = ADMIN_DIS, return.geom = TRUE)
+
+# Edge length for CLC 2018
+TH18.EdgeLength <- st_edge_length(x = CLC_18 %>% 
+                                       dplyr::filter(LABEL1 == "Agricultural areas"), 
+                                  y = CLC_18 %>% 
+                                      dplyr::filter(LABEL1 == "Forest and semi natural areas"), 
+                                  geom.boundary = ADMIN_DIS, return.geom = TRUE)
+```
+
+
+Now, we have a look on it:
+
+```{r, echo = FALSE, results = 'EDGE'}
+knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
+           CLC2012_EdgeLength = VLSM_data_result$TH12_EdgeLength$edge_length$L %>% round(., 2),
+           CLC2018_EdgeLength = VLSM_data_result$TH18_EdgeLength$edge_length$L %>% round(., 2)))
+```
+
+It is not surprising that the *edge length* [m] between `agricultural areas` and `forest and semi natural areas` is higher in the rural and larger district of Saale-Holzland. Regarding the change from 2012 to 2018 the *edge length* is slightly decreasing in both districts. However, the index becomes even more powerful by building appropriate ratios as `edge-length to perimeter of class x`.
+
+
+## 3.6 Shannon's Diversity Index
+
+The *Shannon's Diversity Index* for landscapes is calculated according to [McGarigal et al. (1995)](https://www.fs.usda.gov/treesearch/pubs/3064). The index gives information on the diversity of a landscape. The index is 0 when the area consists only of one land-use class. The index increases with increasing number of land-use classes or when an equilibrium of land-use class area is approximated.
+
+The index can be calculated by:
+
+```{r, eval = FALSE, warning = FALSE}
+# Shannon's Diversity for CLC 2012
+TH12.Shannon <- st_shannon_index(x = CLC_12, field = "LABEL1", 
+                                 geom.boundary = ADMIN_DIS)
+
+# Shannon's Diversity for CLC 2018
+TH18.Shannon <- st_shannon_index(x = CLC_18, field = "LABEL1", 
+                                 geom.boundary = ADMIN_DIS)
+
+```
+
+
+Let's take a look on the results:
+
+```{r, echo = FALSE, results = 'SHANNON'}
+knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
+           CLC2012_Shannon = VLSM_data_result$TH12_Shannon$SHDI$SHDI %>% round(., 2),
+           CLC2018_Shannon = VLSM_data_result$TH18_Shannon$SHDI$SHDI %>% round(., 2)))
+```
+
+
+The district of Jena has a higher *Shannon Diversity Index* (1.1) than Saale-Holzland (0.9), and the index is not changing from 2012 to 2018. The higher diversity for Jena is quite surprising, and appears even contradictory in an ecological sense.
+This example unveils directly the weak spots of the index: First, there is no weighting for ecological valuable land-use classes. For example, an increasing amount of urban area resulting in a more equitable proportional distribution of area could increase the index, which, ecologically speaking, is nonsense. And second, it does not matter if the surfaces are homogeneous or mosaic-like distributed, the index values stays the same. 
+
+
+# 4 References
+
+* Ackermann, W., Schweiger, M., Sukopp, U., Fuchs, D., & Sachteleben, J. (2013). Indikatoren zur biologischen vielfalt: Entwicklung und bilanzierung [Biodiversity indicators. Development and accounting]. Naturschutz und Biologische Vielfalt, 132.
+
+* Forman, R.T.T.,& Godron, M. (1986). Landscape Ecology. Cambridge.
+
+* McGarigal, K., & Marks, B. J. (1995). FRAGSTATS: spatial pattern analysis program for quantifying landscape structure. Gen. Tech. Rep. PNW-GTR-351. Portland, OR: US Department of Agriculture, Forest Service, Pacific Northwest Research Station. 122 p, 351.
+
+* Meinel, G., & Winkler, M. (2002). Spatial analysis of settlement and open land trends in urban areas on basis of RS data œ studies of five European cities over a 50-year period.
+
+* Moser, B., Jaeger, J. A., Tappeiner, U., Tasser, E., & Eiselt, B. (2007). Modification of the effective mesh size for measuring landscape fragmentation to solve the boundary problem. Landscape ecology, 22(3), 447-459.
+
+* Siedentop, S., Heiland, S., Lehmann, I., Schauerte-Lüke, N., & HERNIG, A. (2007). Nachhaltigkeitsbarometer Fläche. Regionale Schlüsselindikatoren nachhaltiger Flächennutzung für die Fortschrittsberichte der Nationalen Nachhaltigkeitsstrategie–Flächenziele. Forschungen, 130, 2007.
+
+* Walz, U. (2013). Landschaftsstrukturmaße und Indikatorensysteme zur Erfassung und Bewertung des Landschaftswandels und seiner Umweltauswirkungen; unter besonderer Berücksichtigung der biologischen Vielfalt. Habilitation, Rostock.

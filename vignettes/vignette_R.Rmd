@@ -34,7 +34,7 @@ Most common landscape metrics are calculated on a raster-basis. However, sometim
 *   **Edge Length** based on [Walz (2013)](http://rosdok.uni-rostock.de/file/rosdok_disshab_0000000980/rosdok_derivate_0000005089/Habilitationsschrift_Walz_2013.pdf)
 *   **Shannon's Diversity Index** for landscapes based on [McGarigal et al. (1995)](https://www.fs.usda.gov/treesearch/pubs/3064)
 
-In the following, a quick manual on how to use these functions.
+In the following, a quick manual on how to use these functions in `R`. If you want to use these functions via `QGIS`, please refer to [here]().
 
 # 2 Packages, Data and Software Utilities
 
@@ -47,7 +47,7 @@ Let's start by loading the packages and data:
 ```{r message = FALSE, warning = FALSE}
 # LOAD REQUIRED LIBRARIES
 if(!require("pacman")) install.packages("pacman")
-pacman::p_load(VLSM, dplyr, ggplot2, rgrass7, raster, link2GI, sf)
+pacman::p_load(VLSM, dplyr, ggplot2, gridExtra, rgrass7, raster, link2GI, sf)
 
 
 # LOAD THE DATA OF THE PACKAGE:
@@ -77,14 +77,49 @@ data(VLSM_data_result, package = "VLSM")
 And now, let's take a look on the study area:
 
 ```{r, echo = FALSE, fig.show='Overview', fig.cap = "Overview of study area."}
-ggplot2::ggplot() + 
+bbox.CLC <- CLC_12 %>% sf::st_transform(x =., crs = 4326) %>% sf::st_bbox() # 3857 
+n <- 4
+
+plot.clc12 <- ggplot2::ggplot() + 
   ggplot2::geom_sf(data = CLC_12, aes(fill = LABEL1), colour = NA) + 
   ggplot2::scale_fill_manual(name = "", values = c("#cd7c08", "#d40a42", "#097a1d")) +
   ggplot2::xlab("Longitude") + ggplot2::ylab("Latitude") + ggplot2::ggtitle("CLC-2012") + 
+  ggplot2::scale_x_continuous(breaks =  seq(bbox.CLC[1], bbox.CLC[3], length.out = n) %>% round(., 2)) + 
+  ggplot2::scale_y_continuous(breaks = seq(bbox.CLC[2], bbox.CLC[4], length.out = n) %>% round(., 2)) + 
   ggplot2::geom_sf(data = ADMIN_DIS, fill = NA, lwd = 1.2, colour = "black") + 
-  ggplot2::geom_sf_text(data = ADMIN_DIS, aes(label = GEN), colour = "white", size = 3.6) + 
+  ggplot2::geom_sf_text(data = ADMIN_DIS, aes(label = GEN), colour = "white", size = 3.6) + # 3.6
   ggplot2::theme_bw() + 
   ggplot2::theme(legend.position = "bottom")
+
+plot.clc12
+
+# plot.clc18 <- ggplot2::ggplot() +
+#   ggplot2::geom_sf(data = CLC_18, aes(fill = LABEL1), colour = NA) +
+#   ggplot2::scale_fill_manual(name = "", values = c("#cd7c08", "#d40a42", "#097a1d")) +
+#   ggplot2::xlab("Longitude") + ggplot2::ylab("Latitude") + ggplot2::ggtitle("CLC-2018") +
+#   ggplot2::scale_x_continuous(breaks =  seq(bbox.CLC[1], bbox.CLC[3], length.out = n) %>% round(., 2)) +
+#   ggplot2::scale_y_continuous(breaks = seq(bbox.CLC[2], bbox.CLC[4], length.out = n) %>% round(., 2)) +
+#   ggplot2::geom_sf(data = ADMIN_DIS, fill = NA, lwd = 1.2, colour = "black") +
+#   ggplot2::geom_sf_text(data = ADMIN_DIS, aes(label = GEN), colour = "white", size = 2.5) +
+#   ggplot2::theme_bw() +
+#   ggplot2::theme(legend.position = "bottom",
+#                  plot.margin = unit(c(5,5,5,5), "mm"))
+# 
+# g_legend <- function(a.gplot){
+#   tmp <- ggplot_gtable(ggplot_build(a.gplot))
+#   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+#   legend <- tmp$grobs[[leg]]
+#   return(legend)
+# }
+# 
+# mylegend <- g_legend(plot.clc12)
+# 
+# gridExtra::grid.arrange(gridExtra::arrangeGrob(plot.clc12 + theme(legend.position="none"),
+#                                                plot.clc18 + theme(legend.position="none"),
+#                                                mylegend),
+#                          nrow=3, ncol = 1, heights = c(100, 100, 1))
+
+
 ```
 
 For "strange" or partly invalid geometries, we highly recommend to use `GRASS GIS`(> 7.6) via the [rgrass7](https://cran.r-project.org/web/packages/rgrass7/index.html)-package for the geo-computations. `GRASS GIS` can be easily initialized via the [link2GI](https://cran.r-project.org/web/packages/link2GI/index.html)-package:
@@ -269,7 +304,7 @@ CLC2018.MSI <- st_MSI(x = CLC_18 %>% dplyr::filter(LABEL1 == "Artificial surface
 
 Let's take a look on the results:
 
-```{r, echo = FALSE, results = 'MSI', eval = FALSE}
+```{r, echo = FALSE, results = 'MSI'}
 knitr::kable(data.frame(Name = ADMIN_DIS$GEN,
            CLC2012_MSI = VLSM_data_result$CLC2012_MSI$MSI$MSI %>% round(., 2),
            CLC2012_AWMSI = VLSM_data_result$CLC2012_MSI$MSI$AWMSI %>% round(., 2),

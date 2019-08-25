@@ -144,6 +144,6 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
       return(list(mesh = df.result, geom.frag = geom.frag, geom.inter = inter))
     }
   } else {
-    return(df.result)
+    return(list(mesh = df.result))
   }
 } # end of function st_mesh
