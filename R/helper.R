@@ -35,7 +35,7 @@ st_erase = function(x, y, precision = 0, do.subset = TRUE)
       sf::st_set_precision(x = ., precision = precision) %>% lwgeom::st_make_valid(.)
   }
   
-  out <- sf::st_difference(x = x, y = y %>% st_combine(.) %>% st_union(.)) # erase y from x
+  out <- sf::st_difference(x = x, y = y %>% sf::st_combine(.) %>% sf::st_union(.)) # erase y from x
   out <- out %>% dplyr::select(x %>% colnames(.))
   
   if(do.subset)

@@ -1,5 +1,5 @@
 ---
-title: "VLSM: Vector-based Landscape Metrics"
+title: "1 VLSM: Vector-based Landscape Metrics"
 date: "`r Sys.Date()`"
 output: 
   pdf_document:
@@ -9,7 +9,7 @@ output:
     fig_caption: yes
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{VLSM: Vector-based Landscape Metrics}
+  %\VignetteIndexEntry{1 VLSM: Vector-based Landscape Metrics}
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
@@ -22,10 +22,9 @@ knitr::opts_chunk$set(
 knitr::opts_chunk$set(fig.pos = '!h')
 ```
 
-
 # 1 Vignette Info
 
-Most common landscape metrics are calculated on a raster-basis. However, sometimes landscape information come along in vector-formats. For the calculation of landscape metrics, one must perform a vector-to-raster-transformation often resulting in a lost of information. In **VLSM** we implemented the following landscape metrics based on vector data:
+Most common landscape metrics are calculated on a raster-basis. However, sometimes landscape information come along in vector-formats. For the calculation of landscape metrics, one must perform a vector-to-raster-transformation often resulting in a loss of information. In **VLSM** we implemented the following landscape metrics based on vector data:
 
 *   **Effective Mesh Size** based on [Moser et al. (2007)](https://doi.org/10.1007/s10980-006-9023-0)
 *   **Urban Sprawl** based on [Ackermann et al. (2013)](https://www.schulthess.com/buchshop/detail/ISBN-9783784340326/Ackermann-Werne-Schweiger-Manue-Sukopp-Ulrich-fuer-Naturschutz-BfN-Bundesam-Editor/Indikatoren-zur-biologischen-Vielfalt?bpmbutton211549=1&bpmtoken=)

@@ -14,7 +14,7 @@ Most common landscape metrics are calculated on a raster-basis. However, sometim
 -   **Edge Length** based on [Walz 2013](http://rosdok.uni-rostock.de/file/rosdok_disshab_0000000980/rosdok_derivate_0000005089/Habilitationsschrift_Walz_2013.pdf)
 -   **Shannon's Diversity Index** for landscapes based on [McGarigal et al. 1995](https://www.fs.usda.gov/treesearch/pubs/3064)
 
-How to use the functions, please refer to the [vignette](https://github.com/raff-k/VLSM/blob/master/vignettes/vignette.pdf).
+How to use the functions in `R`, please refer to the [vignette-R](https://github.com/raff-k/VLSM/blob/master/vignettes/vignette_R.pdf). You may also want use the functions in the open-source desktop GIS `QGIS`. For this, please refer to the [vignette-QGIS](https://github.com/raff-k/VLSM/blob/master/vignettes/vignette_QGIS.pdf).
 
 Installation
 ------------
