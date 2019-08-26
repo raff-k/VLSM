@@ -1,8 +1,8 @@
 Package: VLSM
 Type: Package
 Title: Vector-based Landscape Metrics
-Version: 0.01
-Date: 2019-07-01
+Version: 0.02
+Date: 2019-08-26
 Authors@R: c(
         person("Raphael", "Knevels", 
         email = "raphael.knevels@uni-jena.de",
