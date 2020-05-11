@@ -1,20 +1,14 @@
 citHeader("To cite package 'VLSM' in publications use:")
-citEntry(entry = "Article",
-	title = "...",
-	author = personList(as.person("Raphael Knevels"),
-	                    as.person("..."),
-	                    as.person("...")),
-	journal = "...",
-	year = "20XX",
-	volume = "X",
-	issue = "X",
-	pages = "XXX--XXX",
-	note = "Accepted for publication on 20XX-XX-XX",
-	url = "https://LINK.pdf",
+citEntry(entry = "Manual",
+	title = "VLSM: Vector-based Landscape Metrics",
+	author = personList(as.person("Raphael Knevels")),
+	year = "2019",
+	note = "R package version 0.0.0-9002.",
+	url = "https://github.com/raff-k/VLSM",
 	header = "To cite the 'VLSM' package use:",
 	textVersion = 
-	  paste("Knevels, R.,..., .., and .. .... 20XX.",
+	  paste("Knevels, R. 2019",
 		      "VLSM: Vector-based Landscape Metrics.",
-		      "... X, X, ...-....",
-		      "https://LINK.pdf.")
+          "R package version 0.0.0-9002",
+          "https://github.com/raff-k/VLSM")
 )
