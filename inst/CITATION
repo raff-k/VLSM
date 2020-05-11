@@ -3,12 +3,12 @@ citEntry(entry = "Manual",
 	title = "VLSM: Vector-based Landscape Metrics",
 	author = personList(as.person("Raphael Knevels")),
 	year = "2019",
-	note = "R package version 0.0.0-9002.",
+	note = "R package version 0.0.0-9002",
 	url = "https://github.com/raff-k/VLSM",
 	header = "To cite the 'VLSM' package use:",
 	textVersion = 
 	  paste("Knevels, R. 2019",
 		      "VLSM: Vector-based Landscape Metrics.",
-          "R package version 0.0.0-9002",
+          "R package version 0.0.0-9002.",
           "https://github.com/raff-k/VLSM")
 )
