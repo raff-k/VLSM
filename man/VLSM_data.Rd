@@ -4,12 +4,14 @@
 \name{VLSM_data}
 \alias{VLSM_data}
 \title{Data-set of VLSM-package.}
-\format{A list with three entries:
+\format{
+A list with three entries:
 \describe{
 \item{CLC_12}{CORINE Land Cover of year 2012}
 \item{CLC_18}{CORINE Land Cover of year 2018}
 \item{ADMIN_DIST}{Administrative boundaries}
-}}
+}
+}
 \source{
 \itemize{
 \item \url{https://www.govdata.de/web/guest/daten/-/details/corine-land-cover-deutschland-25-ha-2018-datensatz}

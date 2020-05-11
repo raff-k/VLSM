@@ -4,8 +4,13 @@
 \alias{rgrass_make_valid}
 \title{Make geometries valid using GRASS GIS}
 \usage{
-rgrass_make_valid(x, tool = "break", check.geom = FALSE,
-  stringsAsFactors = FALSE, quiet = TRUE)
+rgrass_make_valid(
+  x,
+  tool = "break",
+  check.geom = FALSE,
+  stringsAsFactors = FALSE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{x}{object of class \code{sf}. Always of type polygon.}

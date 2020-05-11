@@ -4,10 +4,20 @@
 \alias{st_integration_index}
 \title{Calculate integration index}
 \usage{
-st_integration_index(tool = "sf", geom.old, geom.new,
-  geom.boundary = NULL, tol = 0.1, precision = 0, env.rsaga = NULL,
-  snap.rgrass = 1e-05, dist.new = 0, override = TRUE,
-  return.geom = FALSE, quiet = TRUE)
+st_integration_index(
+  tool = "sf",
+  geom.old,
+  geom.new,
+  geom.boundary = NULL,
+  tol = 0.1,
+  precision = 0,
+  env.rsaga = NULL,
+  snap.rgrass = 1e-05,
+  dist.new = 0,
+  override = TRUE,
+  return.geom = FALSE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{tool}{tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set}

@@ -4,7 +4,8 @@
 \name{VLSM_data_result}
 \alias{VLSM_data_result}
 \title{Data-set of VLSM-package with results.}
-\format{A list with three entries:
+\format{
+A list with three entries:
 \describe{
 \item{CLC_12_J}{CORINE Land Cover of year 2012}
 \item{CLC_18_J}{CORINE Land Cover of year 2018}
@@ -20,7 +21,8 @@
 \item{TH18_EdgeLength}{result of edge length calculation for CLC-2018}
 \item{TH12_Shannon}{result of Shannon Diversity index for CLC-2012}
 \item{TH18_Shannon}{result of Shannon Diversity index for CLC-2018}
-}}
+}
+}
 \usage{
 VLSM_data_result
 }

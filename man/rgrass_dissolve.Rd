@@ -4,8 +4,14 @@
 \alias{rgrass_dissolve}
 \title{Dissolves geometries using GRASS GIS}
 \usage{
-rgrass_dissolve(x, ..., split = FALSE, check.geom = TRUE,
-  stringsAsFactors = FALSE, quiet = TRUE)
+rgrass_dissolve(
+  x,
+  ...,
+  split = FALSE,
+  check.geom = TRUE,
+  stringsAsFactors = FALSE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{x}{object of class \code{sf}. Always of type polygon.}

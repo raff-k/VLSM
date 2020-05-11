@@ -4,8 +4,15 @@
 \alias{st_shannon_index}
 \title{Calculate the Shannon's Diversity Index}
 \usage{
-st_shannon_index(tool = "sf", x, field, geom.boundary = NULL,
-  do.preProcessing = TRUE, return.geom = FALSE, quiet = TRUE)
+st_shannon_index(
+  tool = "sf",
+  x,
+  field,
+  geom.boundary = NULL,
+  do.preProcessing = TRUE,
+  return.geom = FALSE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{tool}{tool to perform dissolve operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is NOT supported}

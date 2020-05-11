@@ -4,12 +4,23 @@
 \alias{st_urban_sprawl}
 \title{Calculate urban sprawl}
 \usage{
-st_urban_sprawl(tool = "sf", geom.urban, geom.boundary = NULL,
-  dist = c(100, 100), trans = function(x, trans.k) {     x - 1 + 1/(x +
-  trans.k) }, trans.k = 1, tol = 0.1, extent = NULL,
-  force.extent = FALSE, override = FALSE, precision = 0,
-  do.preProcessing = TRUE, return.geom = FALSE, env.rsaga = NULL,
-  quiet = TRUE)
+st_urban_sprawl(
+  tool = "sf",
+  geom.urban,
+  geom.boundary = NULL,
+  dist = c(100, 100),
+  trans = function(x, trans.k) {     x - 1 + 1/(x + trans.k) },
+  trans.k = 1,
+  tol = 0.1,
+  extent = NULL,
+  force.extent = FALSE,
+  override = FALSE,
+  precision = 0,
+  do.preProcessing = TRUE,
+  return.geom = FALSE,
+  env.rsaga = NULL,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{tool}{tool to perform erase-vector-operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is also supported, then \code{env.rsaga} must be properly set.}
@@ -43,7 +54,7 @@ st_urban_sprawl(tool = "sf", geom.urban, geom.boundary = NULL,
 \item{quiet}{If set to \code{FALSE}, actual state is printed to console. Default: \code{TRUE}.}
 }
 \value{
-strong urban sprawl: 40-50%, less urban sprawl: 80-90%
+strong urban sprawl: 40-50\%, less urban sprawl: 80-90\%
 }
 \description{
 This function calculates the urban sprawl of urban area.

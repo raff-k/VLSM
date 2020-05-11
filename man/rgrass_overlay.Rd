@@ -4,8 +4,16 @@
 \alias{rgrass_overlay}
 \title{Overlays two vector geometries using GRASS GIS}
 \usage{
-rgrass_overlay(x, y, operator = "and", ..., unique.colnames = TRUE,
-  check.geom = TRUE, stringsAsFactors = FALSE, quiet = TRUE)
+rgrass_overlay(
+  x,
+  y,
+  operator = "and",
+  ...,
+  unique.colnames = TRUE,
+  check.geom = TRUE,
+  stringsAsFactors = FALSE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{x}{object of class \code{sf}. First element: Should be either of type line or polygon}

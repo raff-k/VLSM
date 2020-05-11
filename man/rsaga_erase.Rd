@@ -4,8 +4,16 @@
 \alias{rsaga_erase}
 \title{Erase one geometry from another using Saga GIS}
 \usage{
-rsaga_erase(x, y, method = "1", split = "0", attributes = "1",
-  env.rsaga = RSAGA::rsaga.env(), check.geom = TRUE, quiet = TRUE)
+rsaga_erase(
+  x,
+  y,
+  method = "1",
+  split = "0",
+  attributes = "1",
+  env.rsaga = RSAGA::rsaga.env(),
+  check.geom = TRUE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{x}{object of class \code{sf}. First element: Should be either of type line or polygon}

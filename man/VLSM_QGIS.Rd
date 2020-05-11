@@ -4,12 +4,14 @@
 \name{VLSM_QGIS}
 \alias{VLSM_QGIS}
 \title{Data-set of VLSM-package.}
-\format{A list with three entries:
+\format{
+A list with three entries:
 \describe{
 \item{image_intro}{Image for section 2}
 \item{image_mesh}{Image for section 3.1}
 \item{image_ffe}{Image for section 3.2}
-}}
+}
+}
 \usage{
 VLSM_QGIS
 }

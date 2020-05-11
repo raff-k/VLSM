@@ -4,8 +4,15 @@
 \alias{st_MSI}
 \title{Calculate the mean shape index of a polygons}
 \usage{
-st_MSI(tool = "sf", x, geom.boundary = NULL, field = NULL,
-  do.preProcessing = TRUE, return.geom = FALSE, quiet = TRUE)
+st_MSI(
+  tool = "sf",
+  x,
+  geom.boundary = NULL,
+  field = NULL,
+  do.preProcessing = TRUE,
+  return.geom = FALSE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{tool}{tool to perform dissolve operation. Default is \code{"sf"}. However, for complex polygons \code{"grass"} is highly recommended. Fot the use of \code{"grass"} a valid GRASS GIS-session mus be initiated. \code{"saga"} is NOT supported}

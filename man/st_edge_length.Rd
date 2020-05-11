@@ -4,8 +4,16 @@
 \alias{st_edge_length}
 \title{Calculate edge length between two geometries}
 \usage{
-st_edge_length(x, y, dist.x = 0, dist.y = 0, geom.boundary = NULL,
-  do.preProcessing = TRUE, return.geom = FALSE, quiet = TRUE)
+st_edge_length(
+  x,
+  y,
+  dist.x = 0,
+  dist.y = 0,
+  geom.boundary = NULL,
+  do.preProcessing = TRUE,
+  return.geom = FALSE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{x}{polygon of class \code{sf} representing the basis geometry}
