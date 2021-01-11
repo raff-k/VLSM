@@ -17,6 +17,7 @@ addons:
        - libmagick++-dev
        - librsvg2-dev
        - libwebp-dev
+       - libgit2-dev
        - libpoppler-cpp-dev
        - libtesseract-dev
        - libleptonica-dev
