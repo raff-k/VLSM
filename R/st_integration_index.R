@@ -45,21 +45,21 @@ st_integration_index = function(tool = "sf", geom.old, geom.new, geom.boundary =
   if(sf::st_precision(geom.old) != precision)
   {
     geom.old <- geom.old %>% sf::st_set_precision(x = ., precision = precision) %>%
-      lwgeom::st_make_valid(.) %>%
+      sf::st_make_valid(.) %>%
       sf::st_collection_extract(x = ., type = "POLYGON")
   }
   
   if(sf::st_precision(geom.new) != precision)
   {
     geom.new <- geom.new %>% sf::st_set_precision(x = ., precision = precision) %>%
-      lwgeom::st_make_valid(.) %>%
+      sf::st_make_valid(.) %>%
       sf::st_collection_extract(x = ., type = "POLYGON")
   }
   
   ## check validity of geometries
-  if(!all(sf::st_is_valid(geom.old))){ stop('Input of "geom.old" contains not valid geometries. Please try lwgeom::st_make_valid().')}
-  if(!all(sf::st_is_valid(geom.new))){ stop('Input of "geom.new" contains not valid geometries. Please try lwgeom::st_make_valid().')}
-  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
+  if(!all(sf::st_is_valid(geom.old))){ stop('Input of "geom.old" contains not valid geometries. Please try sf::st_make_valid().')}
+  if(!all(sf::st_is_valid(geom.new))){ stop('Input of "geom.new" contains not valid geometries. Please try sf::st_make_valid().')}
+  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try sf::st_make_valid().')}
   
  
   

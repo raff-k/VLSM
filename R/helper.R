@@ -30,9 +30,9 @@ st_erase = function(x, y, precision = 0, do.subset = TRUE)
   
   if(precision != 0)
   {
-    x <- x %>% sf::st_set_precision(x = ., precision = precision) %>% lwgeom::st_make_valid(.)
+    x <- x %>% sf::st_set_precision(x = ., precision = precision) %>% sf::st_make_valid(.)
     y <- y %>% sf::st_combine(.) %>% sf::st_union(.) %>%
-      sf::st_set_precision(x = ., precision = precision) %>% lwgeom::st_make_valid(.)
+      sf::st_set_precision(x = ., precision = precision) %>% sf::st_make_valid(.)
   }
   
   out <- sf::st_difference(x = x, y = y %>% sf::st_combine(.) %>% sf::st_union(.)) # erase y from x
@@ -58,7 +58,7 @@ st_erase = function(x, y, precision = 0, do.subset = TRUE)
 #' @param split Set to \code{"1"}, if multi-part polygons should be splitted to single-part polygons. Default: \code{"0"}
 #' @param attributes attributes inherited to intersection result. \code{0} polygon, \code{1} line, \code{2} line and polygon. Default: \code{"1"}
 #' @param env.rsaga SAGA GIS environemnt. Default: \link[RSAGA]{rsaga.env}
-#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}
+#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[sf]{valid}). Default: \code{TRUE}
 #' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
 #' @return
 #' Geometry of class \code{sfc}
@@ -99,8 +99,8 @@ rsaga_erase = function(x, y, method = "1", split = "0", attributes = "1", env.rs
   ## check validity
   if(check.geom && !all(sf::st_is_valid(out)))
   {
-    warning('Some invalid geometries by "rsaga_erase". Try to correct geomeries using lwgeom::st_make_valid()!')
-    out <- lwgeom::st_make_valid(x = out)
+    warning('Some invalid geometries by "rsaga_erase". Try to correct geomeries using sf::st_make_valid()!')
+    out <- sf::st_make_valid(x = out)
     
     if(method == "1")
     {
@@ -145,7 +145,7 @@ preProcessing <- function(x, split = TRUE)
     sf::st_sf(ID = 1:length(.), geometry = .) # %>%
     # dplyr::mutate(A_ha = sf::st_area(.) %>% as.numeric(.) %>% (function(x = .) x/(100*100)))
   
-  if(!all(sf::st_is_valid(x.tmp))){x.tmp <- x.tmp %>% lwgeom::st_make_valid(.)}
+  if(!all(sf::st_is_valid(x.tmp))){x.tmp <- x.tmp %>% sf::st_make_valid(.)}
   
   return(x.tmp)
 }
@@ -161,7 +161,7 @@ preProcessing <- function(x, split = TRUE)
 #' @param operator operator of \code{v.overlay}. \code{"and"}: intersection,  \code{"or"}: union, \code{"not"}: difference, \code{"xor"}: symmetrical difference. Default: \code{"and"}
 #' @param ... other option for \code{v.overlay} set into params.
 #' @param unique.colnames Make columns names unique using \link[base]{make.unique}. Default: \code{TRUE}
-#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}
+#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[sf]{valid}). Default: \code{TRUE}
 #' @param stringsAsFactors Default: \code{FALSE}
 #' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
 #' @return
@@ -218,8 +218,8 @@ rgrass_overlay = function(x, y, operator = "and", ... , unique.colnames = TRUE, 
   ## check validity
   if(check.geom && !all(sf::st_is_valid(out)))
   {
-    warning('Some invalid geometries by "rgrass_erase". Try to correct geomeries using lwgeom::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
-    out <- lwgeom::st_make_valid(x = out)
+    warning('Some invalid geometries by "rgrass_erase". Try to correct geomeries using sf::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
+    out <- sf::st_make_valid(x = out)
     
     # if(method == "1")
     # {
@@ -244,7 +244,7 @@ rgrass_overlay = function(x, y, operator = "and", ... , unique.colnames = TRUE, 
 #' @param x object of class \code{sf}. Always of type polygon.
 #' @param ... other option for \code{v.dissolve} set into params (e.g. layer or column).
 #' @param split export vector data as single features. Default: \code{FALSE}
-#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}
+#' @param check.geom If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[sf]{valid}). Default: \code{TRUE}
 #' @param stringsAsFactors Default: \code{FALSE}
 #' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
 #' @return
@@ -297,8 +297,8 @@ rgrass_dissolve = function(x, ... , split = FALSE, check.geom = TRUE, stringsAsF
   ## check validity
   if(check.geom && !all(sf::st_is_valid(out)))
   {
-    warning('Some invalid geometries by "rgrass_dissolve". Try to correct geomeries using lwgeom::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
-    out <- lwgeom::st_make_valid(x = out)
+    warning('Some invalid geometries by "rgrass_dissolve". Try to correct geomeries using sf::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
+    out <- sf::st_make_valid(x = out)
     
   }
   return(out)
@@ -315,7 +315,7 @@ rgrass_dissolve = function(x, ... , split = FALSE, check.geom = TRUE, stringsAsF
 #'
 #' @param x object of class \code{sf}. Always of type polygon.
 #' @param tool Cleaning tool. Can be \code{"break, snap, rmdangle, chdangle, rmbridge, chbridge, rmdupl, rmdac, bpol, prune, rmarea, rmline, rmsa"}. Default: \code{"break"}
-#' @param check.geom If set to \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{FALSE}
+#' @param check.geom If set to \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[sf]{valid}). Default: \code{FALSE}
 #' @param stringsAsFactors Default: \code{FALSE}
 #' @param quiet If \code{FALSE} then comments are printed. Default: \code{TRUE}
 #' @return
@@ -360,8 +360,8 @@ rgrass_make_valid <- function(x, tool = "break", check.geom = FALSE, stringsAsFa
   ## check validity
   if(check.geom && !all(sf::st_is_valid(out)))
   {
-    warning('Some invalid geometries by "rgrass_erase". Try to correct geomeries using lwgeom::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
-    out <- lwgeom::st_make_valid(x = out)
+    warning('Some invalid geometries by "rgrass_erase". Try to correct geomeries using sf::st_make_valid()! \n Check geometry type and extract "POLYGON" or "LINESTRING" using sf::st_collection_extract(.) if necessairy')
+    out <- sf::st_make_valid(x = out)
     
   }
   return(out)

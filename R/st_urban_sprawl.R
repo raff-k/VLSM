@@ -54,14 +54,14 @@ st_urban_sprawl = function(tool = "sf", geom.urban, geom.boundary = NULL, dist =
   if(sf::st_precision(geom.urban) != precision)
   {
     geom.urban <- geom.urban %>% sf::st_set_precision(x = ., precision = precision) %>%
-      lwgeom::st_make_valid(.) %>%
+      sf::st_make_valid(.) %>%
       sf::st_collection_extract(x = ., type = "POLYGON")
   }
   
   
   ## check validity of geometries
-  if(!all(sf::st_is_valid(geom.urban))){ stop('Input of "geom.urban" contains not valid geometries. Please try lwgeom::st_make_valid().')}
-  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
+  if(!all(sf::st_is_valid(geom.urban))){ stop('Input of "geom.urban" contains not valid geometries. Please try sf::st_make_valid().')}
+  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try sf::st_make_valid().')}
   
   ## add unique ID and subset data
   if(!is.null(geom.boundary)){ geom.boundary$ID_BNDS <- 1:nrow(geom.boundary) } # ## add unique IDs

@@ -34,8 +34,8 @@ st_shannon_index = function(tool = "sf", x, field, geom.boundary = NULL, do.preP
 
   
   ## check validity of geometries
-  if(!all(sf::st_is_valid(x))){ stop('Input of "x" contains not valid geometries. Please try lwgeom::st_make_valid().')}
-  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
+  if(!all(sf::st_is_valid(x))){ stop('Input of "x" contains not valid geometries. Please try sf::st_make_valid().')}
+  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try sf::st_make_valid().')}
   
   # modify boundary input
   if(!is.null(geom.boundary))

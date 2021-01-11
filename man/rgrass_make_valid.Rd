@@ -17,7 +17,7 @@ rgrass_make_valid(
 
 \item{tool}{Cleaning tool. Can be \code{"break, snap, rmdangle, chdangle, rmbridge, chbridge, rmdupl, rmdac, bpol, prune, rmarea, rmline, rmsa"}. Default: \code{"break"}}
 
-\item{check.geom}{If set to \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{FALSE}}
+\item{check.geom}{If set to \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[sf]{valid}). Default: \code{FALSE}}
 
 \item{stringsAsFactors}{Default: \code{FALSE}}
 

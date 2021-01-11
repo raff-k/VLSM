@@ -29,8 +29,8 @@ st_MSI = function(tool = "sf", x, geom.boundary = NULL, field = NULL, do.preProc
   process.time.start <- proc.time()
   
   ## check validity of geometries
-  if(!all(sf::st_is_valid(x))){ stop('Input of "x" contains not valid geometries. Please try lwgeom::st_make_valid().')}
-  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
+  if(!all(sf::st_is_valid(x))){ stop('Input of "x" contains not valid geometries. Please try sf::st_make_valid().')}
+  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try sf::st_make_valid().')}
   
 
   if(do.preProcessing && !is.null(field))

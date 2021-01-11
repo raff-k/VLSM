@@ -26,7 +26,7 @@ rgrass_overlay(
 
 \item{unique.colnames}{Make columns names unique using \link[base]{make.unique}. Default: \code{TRUE}}
 
-\item{check.geom}{If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[lwgeom]{valid}). Default: \code{TRUE}}
+\item{check.geom}{If set to  \code{TRUE} then geometry is checked with \code{sf::st_is_valid} (\link[sf]{geos_query}). If there are invalid geometries, geometries are repaired using \code{st_make_valid} (\link[sf]{valid}). Default: \code{TRUE}}
 
 \item{stringsAsFactors}{Default: \code{FALSE}}
 

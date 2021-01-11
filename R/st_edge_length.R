@@ -27,7 +27,7 @@ st_edge_length = function(x, y, dist.x = 0, dist.y = 0, geom.boundary = NULL, do
   process.time.start <- proc.time()
   result.list <- list()
   
-  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
+  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try sf::st_make_valid().')}
   
   
   if(do.preProcessing)

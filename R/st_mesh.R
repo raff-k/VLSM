@@ -39,8 +39,8 @@ st_mesh = function(geom.frag, geom.boundary = NULL, total.area = NULL, conv = 10
   
   
   ## check validity of geometries
-  if(!all(sf::st_is_valid(geom.frag))){ stop('Input of "geom.frag" contains not valid geometries. Please try lwgeom::st_make_valid().')}
-  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try lwgeom::st_make_valid().')}
+  if(!all(sf::st_is_valid(geom.frag))){ stop('Input of "geom.frag" contains not valid geometries. Please try sf::st_make_valid().')}
+  if(!is.null(geom.boundary) && !all(sf::st_is_valid(geom.boundary))){ stop('Input of "geom.boundary" contains not valid geometries. Please try sf::st_make_valid().')}
   
   
   if(do.preProcessing)
