@@ -50,4 +50,4 @@ Fallstudie anhand der Gemeinden Waidhofen/Ybbs und Paldau \[Cultural
 Landscape Change: An Indicator-Based Retrospect into the 19th Century.
 Case Study of the Municipalities Waidhofen/Ybbs and Paldau\].
 Mitteilungen der Österreichischen Geographischen Gesellschaft, 162,
-255-285. doi: 10.1553/moegg162s255
+255-285. doi: <https://doi.org/10.1553/moegg162s255>

@@ -44,4 +44,4 @@ devtools::install_github("raff-k/VLSM")
 Knevels, R., Brenning, A., Gingrich, S., Gruber, E., Lechner, T., Leopold, P., Petschko, H., Plutzar, C. (2021) Kulturlandschaft im Wandel: Ein
 indikatorenbasierter Rückblick bis in das 19. Jahrhundert. Fallstudie anhand der Gemeinden Waidhofen/Ybbs und Paldau [Cultural Landscape
 Change: An Indicator-Based Retrospect into the 19th Century. Case Study of the Municipalities Waidhofen/Ybbs and Paldau]. Mitteilungen der
-Österreichischen Geographischen Gesellschaft, 162, 255-285. doi: 10.1553/moegg162s255
+Österreichischen Geographischen Gesellschaft, 162, 255-285. doi: https://doi.org/10.1553/moegg162s255
