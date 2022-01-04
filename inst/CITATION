@@ -1,3 +1,23 @@
+bibentry(
+    bibtype = "Article",
+    author = c(person("Raphael","Knevels"),
+               person("Alexander","Brenning"),
+               person("Simone","Gingrich"),
+               person("Elisabeth","Gruber"),
+               person("Theresia","Lechner"),
+               person("Philip","Leopold"),
+               person("Helene","Petschko"),
+               person("Christoph","Plutzar")),
+    title = "Kulturlandschaft im Wandel: Ein indikatorenbasierter Rückblick bis in das 19. Jahrhundert. Fallstudie anhand der Gemeinden Waidhofen/Ybbs und Paldau [Cultural Landscape Change: An Indicator-Based Retrospect into the 19th Century. Case Study of the Municipalities Waidhofen/Ybbs and Paldau]",
+    year = "2021",
+    volume = 162,
+    journal = "Mitteilungen der Österreichischen Geographischen Gesellschaft",
+    publisher = "Österreichische Geographische Gesellschaft",
+    pages = "255-285",
+    doi = "10.1553/moegg162s255"
+  )
+  
+  
 citHeader("To cite package 'VLSM' in publications use:")
 citEntry(entry = "Manual",
 	title = "VLSM: Vector-based Landscape Metrics",
@@ -12,3 +32,5 @@ citEntry(entry = "Manual",
           "R package version 0.0.0-9002.",
           "https://github.com/raff-k/VLSM")
 )
+
+  
