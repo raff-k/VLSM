@@ -2,7 +2,7 @@
 #'
 #' This function calculates the effective mesh size.
 #'
-#' @param geom.frag polygon of class \code{sf} representing the fragmentation geometry
+#' @param geom.frag polygon of class \code{sf} representing the fragmentation geometry. That is, all uncut areas between the barriers, i.e. the 'meshes'.
 #' @param geom.boundary polygon of class \code{sf} representing subregions, e.g. administrative boundaries
 #' @param total.area Numeric value representing size for area. Only to use if \code{geom.boundary} is not present. Value must match with the conversion constant \code{c} (default hectare). Default: \code{NULL}
 #' @param conv constant to convert original square meter output. Default: \code{10000} to convert to hectare. If set to \code{1}, than meter square is the result.
